@@ -31,16 +31,16 @@ Tracks `documents-and-reporting-guide-update.md`. Steps 1–6 of its build order
 These are small, but each one is visible in a rendered document, so they're cheaper now than
 after the templates exist.
 
-- [ ] **`WALLET` is not a payment method.** `PaymentMethod` is `CASH, BANK_TRANSFER, QR_CODE,
+- [x] **`WALLET` is not a payment method.** *Done in `V12`; the wallet adapter now writes it.* `PaymentMethod` is `CASH, BANK_TRANSFER, QR_CODE,
       CARD, OTHER`, but `invoice-sample-payload.json` shows `"paymentMethod": "WALLET"` with
       `"paymentMethodLabel": "Wallet balance"`. Guide §11 flags that the frontend currently
       infers the label from a `WALLET-` reference-number prefix, so the logic lives in two
       places and the template would make it three. Needs a `V12` too — `chk_payments_method`
       is a DB CHECK constraint listing the five values.
-- [ ] **`InvoiceItemResponse` has no `category`.** The column exists as of `V11` and the sample
+- [x] **`InvoiceItemResponse` has no `category`.** The column exists as of `V11` and the sample
       payload shows it on each line; this is now a one-line addition to the record and its
       mapper.
-- [ ] **Confirm `sku` on the invoice payload.** Guide §14 lists this as an open question,
+- [x] **Confirm `sku` on the invoice payload.** Guide §14 lists this as an open question,
       inferred from a printed PDF. `InvoiceItemResponse` does carry `sku` — so this one is
       answered, and the template can render it.
 
@@ -110,7 +110,7 @@ grouped rather than dropped.
 
 ## Loose ends found along the way
 
-- [ ] **`ApiApplicationTests.contextLoads` fails on the default profile.** It has no
+- [x] **`ApiApplicationTests.contextLoads` fails on the default profile.** It has no
       `@ActiveProfiles("dev")`, so `JwtTokenProvider`'s constructor throws on the missing JWT
       secret. Pre-existing, unrelated to reporting, and a one-line fix —
       `DashboardCategoryRollupTest` already carries the comment explaining it.
