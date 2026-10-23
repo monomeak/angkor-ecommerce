@@ -46,6 +46,6 @@ public class WalletPaymentGatewayAdapter implements PaymentGatewayPort {
 
     @Override
     public PaymentMethod paymentMethod() {
-        return PaymentMethod.OTHER;      // QR_CODE would be a lie
+        return PaymentMethod.WALLET;
     }
 }

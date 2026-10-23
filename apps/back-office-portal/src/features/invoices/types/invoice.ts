@@ -13,7 +13,7 @@ export type InvoiceStatus = "ISSUED" | "PARTIALLY_PAID" | "PAID" | "CANCELLED";
 /** What a badge actually shows: the stored status, plus the derived one. */
 export type InvoiceDisplayStatus = InvoiceStatus | "OVERDUE";
 
-export type PaymentMethod = "CASH" | "BANK_TRANSFER" | "QR_CODE" | "CARD" | "OTHER";
+export type PaymentMethod = "CASH" | "BANK_TRANSFER" | "QR_CODE" | "CARD" | "WALLET" | "OTHER";
 export type PaymentStatus = "COMPLETED" | "VOIDED" | "REFUNDED";
 
 export interface InvoiceItem {

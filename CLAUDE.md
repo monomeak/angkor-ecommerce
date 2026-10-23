@@ -264,8 +264,6 @@ plainly in the final response rather than claiming it passed.
 - Reconciliation job for stuck payment intents
 - jsreport integration for invoice, receipt, and report PDFs — see
   `docs/reporting/REMAINING_TASKS.md`
-- `WALLET` is missing from `PaymentMethod` and its DB CHECK constraint, though payloads
-  already use it
 
 ## Documentation sources
 

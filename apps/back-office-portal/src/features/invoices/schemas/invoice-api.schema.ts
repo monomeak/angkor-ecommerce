@@ -5,7 +5,7 @@ import { z } from "zod";
  * @JsonValue, so unlike a product's `status` they stay UPPERCASE on the wire.
  */
 export const invoiceStatusSchema = z.enum(["ISSUED", "PARTIALLY_PAID", "PAID", "CANCELLED"]);
-export const paymentMethodSchema = z.enum(["CASH", "BANK_TRANSFER", "QR_CODE", "CARD", "OTHER"]);
+export const paymentMethodSchema = z.enum(["CASH", "BANK_TRANSFER", "QR_CODE", "CARD", "WALLET", "OTHER"]);
 export const paymentStatusSchema = z.enum(["COMPLETED", "VOIDED", "REFUNDED"]);
 export const paymentSourceSchema = z.enum(["STAFF", "GATEWAY"]);
 
