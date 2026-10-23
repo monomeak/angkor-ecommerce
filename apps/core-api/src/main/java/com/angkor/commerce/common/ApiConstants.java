@@ -20,6 +20,7 @@ public final class ApiConstants {
     public static final String PRODUCT_IMAGES = PATH_ID + "/images";
     public static final String PAYMENT_BASE = API_BASE + "/payment";
     public static final String DASHBOARD_BASE = API_BASE + "/dashboard";
+    public static final String REPORTS_BASE = API_BASE + "/reports";
 
     // Store front api group
     public static final String STOREFRONT_AUTH_BASE = STOREFRONT_BASE + "/auth";
