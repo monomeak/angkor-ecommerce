@@ -2,6 +2,8 @@ package com.angkor.commerce.invoice;
 
 import com.angkor.commerce.common.ApiConstants;
 import com.angkor.commerce.common.dto.PageResponse;
+import com.angkor.commerce.common.jsreport.JsReportRenderer;
+import com.angkor.commerce.common.jsreport.PdfResponses;
 import com.angkor.commerce.invoice.dto.request.InvoiceQueryParams;
 import com.angkor.commerce.invoice.dto.request.RecoverInvoiceRequest;
 import com.angkor.commerce.invoice.dto.response.InvoiceResponse;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,6 +35,7 @@ public class InvoiceController {
 
     private final InvoiceService invoiceService;
     private final InvoiceRecoveryService recoveryService;
+    private final JsReportRenderer renderer;
 
     @GetMapping
     @IsAdmin
@@ -43,6 +47,14 @@ public class InvoiceController {
     @IsAdmin
     public ResponseEntity<InvoiceResponse> getInvoice(@PathVariable Long invoiceId) {
         return ResponseEntity.ok(invoiceService.getInvoice(invoiceId));
+    }
+
+    @GetMapping(value = "/{invoiceId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @IsAdmin
+    @Operation(summary = "The invoice as a PDF")
+    public ResponseEntity<byte[]> getInvoicePdf(@PathVariable Long invoiceId) {
+        InvoiceResponse invoice = invoiceService.getInvoice(invoiceId);
+        return PdfResponses.attachment(invoice.invoiceNumber() + ".pdf", renderer.render("document", invoice));
     }
 
     @PostMapping("/recover")

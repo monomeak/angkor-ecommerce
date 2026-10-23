@@ -53,22 +53,24 @@ after the templates exist.
       authentication. Guide §2 is explicit that the browser must never talk to jsreport
       directly and §7 that it should be internal-only in production, with the published port
       moved to a `docker-compose.override.yml` for Studio access in dev.
-- [ ] **Custom image for Khmer fonts** (§11). The base image renders Khmer product titles as
+- [x] **Custom image for Khmer fonts** (§11). *`jsreport/Dockerfile`: the base is Alpine and runs as root, so it's `apk add font-noto font-noto-khmer`, not the guide's `apt-get`.* The base image renders Khmer product titles as
       empty boxes, which reads as a template bug rather than a missing font.
       `fonts-noto-khmer` + `fonts-noto-core`.
-- [ ] **`jsreport/data/` committed as source**: `shared/layout.html`, `shared/helpers.js`,
-      `document/`, `report/`.
-- [ ] **Render both sample payloads in Studio before writing any Java** (§12 step 8, §13) —
+- [x] **`jsreport/data/` committed as source**: `shared/helpers.js`, `shared/styles.css`,
+      `document/`, `report/`. *Bind-mounted in compose. Every `config.json` needs an `_id` —
+      without one the fs store loads the entity but renders fail with "User does not have
+      permissions to read template". Shared CSS replaced the guide's `layout.html`.*
+- [x] **Render both sample payloads in Studio before writing any Java** (§12 step 8, §13) —
       `files-for-js-report/invoice-sample-payload.json` and the discounted variant.
 - [x] `JsReportProperties` + `RestClient` bean + `JsReportRenderer`. Log
       `getResponseBodyAsString()` on a 400 — jsreport puts the template stack trace there, and
       without it template bugs are near-undebuggable (§9).
 - [x] `PdfGenerationException` → **503**, not 500: the data is fine, the renderer isn't, and
       the client can retry.
-- [ ] `GET /invoices/{id}/pdf` with the ownership check (`hasRole('ADMIN') or
+- [x] `GET /invoices/{id}/pdf` with the ownership check *(customers use `/storefront/invoices/{id}/pdf`, scoped by the token)* (`hasRole('ADMIN') or
       @invoiceAccess.isOwner(...)`) — without it, changing `8` to `9` in the URL downloads a
       stranger's invoice.
-- [ ] `GET /reports/invoices/pdf`, `GET /reports/sales-by-category/pdf`.
+- [x] `GET /reports/invoices/pdf`, `GET /reports/sales-by-category/pdf`.
 - [ ] Receipt branch on the `document` template (`docType=RECEIPT` drops due date, balance and
       the status pill).
 - [ ] Wire the PDF buttons into `/reports` and the invoice detail page. Disable while in
@@ -93,14 +95,14 @@ will disagree.
 
 ## Testing still owed (§13)
 
-- [ ] A `CANCELLED` invoice renders its cancellation block
-- [ ] A long product title wraps rather than overflowing
-- [ ] A KHR invoice — decimals disappear
-- [ ] A 40-row report — page 2 renders and `<thead>` repeats
-- [ ] An empty report — the totals row still renders *(covered on the API side by
-      `SalesReportQueryTest`; still unverified in the PDF)*
-- [ ] Customer endpoint with another customer's invoice id → 403, not 200
-- [ ] `@MockBean JsReportRenderer` in integration tests so CI needs no jsreport
+- [x] A `CANCELLED` invoice renders its cancellation block
+- [x] A long product title wraps rather than overflowing
+- [ ] A KHR invoice — decimals disappear. *Open: `en-KH` prints `KHR 64,000.00` in both the
+      portal's `formatMoney` and the template, so changing it means changing both.*
+- [x] A 40-row report — page 2 renders and `<thead>` repeats
+- [x] An empty report — the totals row still renders
+- [x] Customer endpoint with another customer's invoice id → 404, not 200 (`DocumentPdfEndpointTest`)
+- [x] `@MockitoBean JsReportRenderer` in integration tests so CI needs no jsreport
 
 Already covered by `ReportReconciliationTest`: grand totals agree between the two reports,
 category shares sum to 100, an invoice paid outside the window is excluded, manual lines are

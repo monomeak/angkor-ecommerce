@@ -21,6 +21,8 @@ services:
       extensions_authentication_admin_username: ${JSREPORT_USER:?Set JSREPORT_USER in your environment for prod}
       extensions_authentication_admin_password: ${JSREPORT_PASSWORD:?Set JSREPORT_PASSWORD in your environment for prod}
       extensions_authentication_cookieSession_secret: ${JSREPORT_COOKIE_SECRET:?Set JSREPORT_COOKIE_SECRET in your environment for prod}
+      # Templates are edited in dev Studio and shipped as files; prod only needs /api/report.
+      extensions_studio_enabled: "false"
 
   core-api:
     environment:

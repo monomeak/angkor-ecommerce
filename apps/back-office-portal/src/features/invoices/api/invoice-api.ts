@@ -1,4 +1,4 @@
-import { apiFetch, parseResponse } from "@/lib/api-client";
+import { apiFetch, apiFetchFile, parseResponse, type DownloadedFile } from "@/lib/api-client";
 import { mapInvoice, mapInvoiceList } from "../mappers/invoice.mapper";
 import { invoiceDtoSchema, invoiceListDtoSchema } from "../schemas/invoice-api.schema";
 import type { Invoice, InvoiceListParams, InvoiceListResult } from "../types/invoice";
@@ -46,4 +46,8 @@ export async function fetchInvoice(apiBaseUrl: string, invoiceId: number): Promi
     const data = await apiFetch<unknown>(apiBaseUrl, `${INVOICES_BASE}/${invoiceId}`);
 
     return mapInvoice(parseResponse(invoiceDtoSchema, data));
+}
+
+export function fetchInvoicePdf(apiBaseUrl: string, invoiceId: number): Promise<DownloadedFile> {
+    return apiFetchFile(apiBaseUrl, `${INVOICES_BASE}/${invoiceId}/pdf`, "application/pdf");
 }

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{invoiceNumber}}</title>
+  <style>
+    {#asset /shared/styles.css @encoding=utf8}
+    .parties { display: flex; justify-content: space-between; margin-bottom: 18px; }
+    .summary { width: 46%; margin-left: auto; margin-top: 12px; }
+    .summary td { border-bottom: none; padding: 3px 8px; }
+    .summary .grand td { font-size: 12pt; font-weight: 700; border-top: 2px solid #1f2933; padding-top: 6px; }
+    .block { margin-top: 22px; }
+    .cancelled-box { margin-top: 18px; padding: 10px 12px; border: 1px solid #fecaca; background: #fef2f2; color: #991b1b; }
+  </style>
+</head>
+<body>
+  <div class="head">
+    <div>
+      <p class="doc-title">{{invoiceNumber}}</p>
+      <div class="meta">Issued {{formatDate issueDate}} · due {{formatDate dueDate}} · order #{{orderId}}</div>
+      {{#with (displayStatus invoiceStatus dueDate balance) as |status|}}
+      <span class="pill {{lower status}}">{{statusLabel status}}</span>
+      {{/with}}
+    </div>
+    <div class="brand">
+      <p class="brand-name">Angkor Commerce</p>
+      <p class="brand-sub">Phnom Penh, Cambodia</p>
+    </div>
+  </div>
+
+  <div class="parties">
+    <div>
+      <p class="section-label">Billed to</p>
+      {{#with customer}}
+      <div><strong>{{firstName}} {{lastName}}</strong></div>
+      {{#if companyName}}<div>{{companyName}}</div>{{/if}}
+      {{#if email}}<div class="muted">{{email}}</div>{{/if}}
+      {{#if phone}}<div class="muted">{{phone}}</div>{{/if}}
+      {{/with}}
+    </div>
+    <div class="brand">
+      <p class="section-label">Currency</p>
+      <div>{{currency}}</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Item</th>
+        <th class="right">Qty</th>
+        <th class="right">Price</th>
+        <th class="right">Disc.</th>
+        <th class="right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each items}}
+      <tr>
+        <td>{{#if lineNumber}}{{lineNumber}}{{else}}{{inc @index}}{{/if}}</td>
+        <td>
+          <div>{{title}}</div>
+          <div class="muted">{{#if sku}}{{sku}}{{/if}}{{#if category}} · {{category}}{{/if}}</div>
+        </td>
+        <td class="right">{{quantity}}</td>
+        <td class="right">{{money price @root.currency}}</td>
+        <td class="right">{{#gt discountPercentage 0}}{{percent discountPercentage}}{{else}}—{{/gt}}</td>
+        <td class="right">{{money discountedTotal @root.currency}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <table class="summary">
+    <tr><td>Subtotal</td><td class="right">{{money subtotal currency}}</td></tr>
+    {{#gt discountAmount 0}}
+    <tr><td>Discount{{#gt discountPercentage 0}} ({{percent discountPercentage}}){{/gt}}</td><td class="right">−{{money discountAmount currency}}</td></tr>
+    {{/gt}}
+    {{#gt taxAmount 0}}
+    <tr><td>Tax{{#gt taxPercentage 0}} ({{percent taxPercentage}}){{/gt}}</td><td class="right">{{money taxAmount currency}}</td></tr>
+    {{/gt}}
+    <tr class="grand"><td>Total</td><td class="right">{{money total currency}}</td></tr>
+    <tr><td>Paid</td><td class="right">{{money paidAmount currency}}</td></tr>
+    <tr><td><strong>Balance due</strong></td><td class="right"><strong>{{money balance currency}}</strong></td></tr>
+  </table>
+
+  {{#if payments.length}}
+  <div class="block">
+    <p class="section-label">Payments</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Method</th>
+          <th>Reference</th>
+          <th>Status</th>
+          <th class="right">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each payments}}
+        <tr>
+          <td>{{formatDate paymentDate}}</td>
+          <td>{{methodLabel paymentMethod}}</td>
+          <td>{{referenceNumber}}</td>
+          <td>{{paymentStatusLabel paymentStatus}}</td>
+          <td class="right">{{money amount @root.currency}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  {{/if}}
+
+  {{#eq invoiceStatus "CANCELLED"}}
+  <div class="cancelled-box">
+    <strong>Cancelled {{formatDateTime cancelledAt}}</strong>
+    {{#if cancellationReason}}<div>{{cancellationReason}}</div>{{/if}}
+  </div>
+  {{/eq}}
+
+  {{#if notes}}
+  <div class="block">
+    <p class="section-label">Notes</p>
+    <div>{{notes}}</div>
+  </div>
+  {{/if}}
+</body>
+</html>

@@ -1,24 +1,24 @@
 services:
-  # postgres:
-  #   image: postgres:16
-  #   container_name: postgres-service
-  #   environment:
-  #     POSTGRES_DB: ${POSTGRES_DB:-acme_invoice}
-  #     POSTGRES_USER: ${POSTGRES_USER:-acme}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
-  #   ports:
-  #     - "${POSTGRES_HOST_PORT:-5433}:5432"
-  #   volumes:
-  #     - postgres-data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test:
-  #       [
-  #         "CMD-SHELL",
-  #         "pg_isready -U ${POSTGRES_USER:-acme} -d ${POSTGRES_DB:-acme_invoice}",
-  #       ]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 10
+  postgres:
+    image: postgres:16
+    container_name: postgres-service
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-acme_invoice}
+      POSTGRES_USER: ${POSTGRES_USER:-acme}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-acme} -d ${POSTGRES_DB:-acme_invoice}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   # core-api:
   #   build:
@@ -81,7 +81,8 @@ services:
   #     retries: 10
 
   jsreport:
-    image: jsreport/jsreport:4.10.0
+    build: ./jsreport # base image + Khmer fonts
+    image: angkor-jsreport:4.10.0
     container_name: js-report-service
     restart: unless-stopped
     shm_size: "1gb"
@@ -93,8 +94,10 @@ services:
       extensions_authentication_admin_username: ${JSREPORT_USER:-admin}
       extensions_authentication_admin_password: ${JSREPORT_PASSWORD:-change_me_jsreport}
       extensions_authentication_cookieSession_secret: ${JSREPORT_COOKIE_SECRET:-change_me_jsreport_cookie}
+    # Bind mount, not a named volume: the templates are source in jsreport/data, and Studio
+    # edits land back in the repo instead of in a volume nobody can diff.
     volumes:
-      - jsreport-data:/app/data
+      - ./jsreport/data:/app/data
 
   minio:
     image: minio/minio:latest
@@ -141,4 +144,3 @@ services:
 volumes:
   postgres-data:
   minio-data:
-  jsreport-data:

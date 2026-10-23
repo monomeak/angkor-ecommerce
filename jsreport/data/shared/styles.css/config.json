@@ -1,0 +1,6 @@
+{
+    "name": "styles.css",
+    "shortid": "shared-styles",
+    "_id": "asset-shared-styles",
+    "$entitySet": "assets"
+}
