@@ -293,5 +293,26 @@
     "payments": "Payments",
     "noPayments": "Nothing paid yet.",
     "cancelledOn": "Cancelled {date}"
+  },
+  "Reports": {
+    "reportType": "Report",
+    "period": "Period",
+    "exportCsv": "Export CSV",
+    "type": {
+      "invoices": "Invoice report",
+      "sales-by-category": "Sales by category"
+    },
+    "periodOption": {
+      "this_month": "This month (to date)",
+      "last_3_months": "Last 3 months",
+      "last_6_months": "Last 6 months",
+      "last_12_months": "Last 12 months"
+    },
+    "subtitle": "{start} \u2013 {end} \u00b7 paid invoices only \u00b7 {currency}",
+    "empty": "No paid invoices between {start} and {end}.",
+    "loading": "Loading\u2026",
+    "error": "We couldn't load the report. Please try again.",
+    "forbidden": "Your session doesn't have access to reports.",
+    "retry": "Try again"
   }
 }
