@@ -91,6 +91,7 @@ public class InvoiceMapper {
             item.getProductId(),
             item.getSku(),
             item.getTitle(),
+            item.getCategory(),
             item.getDescription(),
             imageStorageService.resolveUrl(item.getThumbnailUrl()),
             item.getUnit(),
