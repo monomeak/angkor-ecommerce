@@ -1,3 +1,7 @@
 packages:
     - "apps/back-office-portal"
     - "apps/customer-portal"
+
+ignoredBuiltDependencies:
+    - sharp
+    - unrs-resolver
