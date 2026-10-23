@@ -21,10 +21,16 @@ import com.angkor.commerce.order.Order;
 import com.angkor.commerce.order.OrderItem;
 import com.angkor.commerce.payment.Payment;
 import com.angkor.commerce.payment.PaymentStatus;
+import com.angkor.commerce.product.repositories.ProductRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,6 +49,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceCalculator calculator;
     private final DocumentNumberGenerator invoiceNumberGenerator;
     private final InvoiceMapper invoiceMapper;
+    private final ProductRepository productRepository;
 
     // ══════════════════════════════════════════════════════
     // Creation — the only way an invoice comes into existence
@@ -99,7 +106,19 @@ public class InvoiceServiceImpl implements InvoiceService {
             return;
         }
 
-        invoice.setInvoiceStatus(statusFor(invoice));
+        InvoiceStatus next = statusFor(invoice);
+        invoice.setInvoiceStatus(next);
+
+        // Reports are on a cash basis, so the settlement date is stamped here rather than
+        // derived at query time. Clearing it on the way out of PAID is what lets a voided
+        // payment drop the invoice out of last month's report instead of stranding it there.
+        if (next == InvoiceStatus.PAID) {
+            if (invoice.getPaidAt() == null) {
+                invoice.setPaidAt(Instant.now());
+            }
+        } else {
+            invoice.setPaidAt(null);
+        }
     }
 
     /** The money decides: nothing paid → ISSUED, part paid → PARTIALLY_PAID, settled → PAID. */
@@ -166,12 +185,15 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     /** The one definition of "order lines → invoice lines". */
     private void copyOrderLines(Order order, Invoice invoice) {
+        Map<Long, String> categories = rootCategoriesFor(order);
+
         for (OrderItem orderItem : order.getItems()) {
             InvoiceItem item = new InvoiceItem();
             item.setProductId(orderItem.getProductId());
             item.setSku(orderItem.getSku());
             item.setTitle(orderItem.getTitle());
             item.setThumbnailUrl(orderItem.getThumbnailUrl());
+            item.setCategory(categories.get(orderItem.getProductId()));
             item.setUnit("piece");
             item.setPrice(orderItem.getUnitPriceSnapshot());
             item.setQuantity(orderItem.getQuantity());
@@ -189,6 +211,27 @@ public class InvoiceServiceImpl implements InvoiceService {
             delivery.setDiscountPercentage(BigDecimal.ZERO);
             invoice.addItem(delivery);
         }
+    }
+
+    /** One lookup for the whole order; a deleted product simply has no category to snapshot. */
+    private Map<Long, String> rootCategoriesFor(Order order) {
+        Set<Long> productIds = order
+            .getItems()
+            .stream()
+            .map(OrderItem::getProductId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+        if (productIds.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<Long, String> categories = new HashMap<>();
+        for (Object[] row : productRepository.findRootCategoryNames(productIds)) {
+            categories.put((Long) row[0], (String) row[1]);
+        }
+
+        return categories;
     }
 
     private Invoice load(Long id) {

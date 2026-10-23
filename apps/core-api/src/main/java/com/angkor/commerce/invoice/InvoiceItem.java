@@ -62,6 +62,10 @@ public class InvoiceItem {
     @Column(name = "thumbnail_url", columnDefinition = "TEXT")
     private String thumbnailUrl;
 
+    /** Snapshotted like the title and price: a category rename must not rewrite old reports. */
+    @Column(length = 100)
+    private String category;
+
     @Column(nullable = false, length = 50)
     private String unit = "piece";
 
