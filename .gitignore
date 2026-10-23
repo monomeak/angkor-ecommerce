@@ -128,3 +128,11 @@ secrets/
 *.db
 *.sqlite
 *.sqlite3
+
+# jsreport runtime state — templates under jsreport/data are source, these are not.
+# profiles and storage hold render logs, which can carry customer data from the payload.
+jsreport/data/fs.journal
+jsreport/data/fs.version
+jsreport/data/settings
+jsreport/data/profiles
+jsreport/data/storage
