@@ -1,0 +1,83 @@
+{
+  "id": 9,
+  "invoiceNumber": "INV-2026-000009",
+  "invoiceStatus": "PAID",
+  "orderId": 14,
+  "customer": {
+    "id": 7,
+    "firstName": "Dara",
+    "lastName": "Sok",
+    "companyName": "Dara Fashion",
+    "email": "dara@example.com",
+    "phone": "+855 98 765 432"
+  },
+  "items": [
+    {
+      "id": 12,
+      "productId": 3,
+      "title": "Classic Black T-Shirt",
+      "sku": "TSHIRT-BLK-001",
+      "category": "clothing",
+      "price": 12,
+      "quantity": 3,
+      "total": 36,
+      "discountPercentage": 10,
+      "discountedTotal": 32.4
+    },
+    {
+      "id": 13,
+      "productId": 18,
+      "title": "Canvas Tote Bag — Natural",
+      "sku": "TOTE-NAT-01",
+      "category": "accessories",
+      "price": 8.5,
+      "quantity": 2,
+      "total": 17,
+      "discountPercentage": 0,
+      "discountedTotal": 17
+    },
+    {
+      "id": 14,
+      "productId": 41,
+      "title": "Stainless Water Bottle 750ml",
+      "sku": "BTL-SS-750",
+      "category": "home",
+      "price": 15,
+      "quantity": 1,
+      "total": 15,
+      "discountPercentage": 0,
+      "discountedTotal": 15
+    }
+  ],
+  "payments": [
+    {
+      "id": 9,
+      "amount": 64.4,
+      "paymentMethod": "KHQR",
+      "paymentMethodLabel": "KHQR · ABA PayWay",
+      "paymentStatus": "COMPLETED",
+      "source": "GATEWAY",
+      "paymentDate": "2026-09-04",
+      "referenceNumber": "ABA-20260904-00231"
+    }
+  ],
+  "issueDate": "2026-09-04",
+  "dueDate": "2026-09-04",
+  "subtotal": 68,
+  "discountPercentage": 0,
+  "discountAmount": 3.6,
+  "taxPercentage": 0,
+  "taxAmount": 0,
+  "total": 64.4,
+  "paidAmount": 64.4,
+  "balance": 0,
+  "currency": "USD",
+  "totalItems": 3,
+  "totalQuantity": 6,
+  "notes": "Thank you for your business.",
+  "issuedAt": "2026-09-04T09:12:03.114221Z",
+  "cancelledAt": null,
+  "cancellationReason": null,
+  "createdAt": "2026-09-04T09:12:03.116004Z",
+  "updatedAt": "2026-09-04T09:12:03.098711Z"
+}

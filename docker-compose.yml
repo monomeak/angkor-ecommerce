@@ -1,6 +1,7 @@
 services:
   # postgres:
   #   image: postgres:16
+  #   container_name: postgres-service
   #   environment:
   #     POSTGRES_DB: ${POSTGRES_DB:-acme_invoice}
   #     POSTGRES_USER: ${POSTGRES_USER:-acme}
@@ -22,6 +23,7 @@ services:
   # core-api:
   #   build:
   #     context: ./apps/core-api
+  #   container_name: core-api-service
   #   environment:
   #     SERVER_PORT: 8080
   #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-acme_invoice}
@@ -53,6 +55,7 @@ services:
   #     args:
   #       # Stage 1 talks to DummyJSON directly, not core-api — see apps/back-office-portal/AGENTS.md.
   #       NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://dummyjson.com}
+  #   container_name: backoffice-portal
   #   environment:
   #     AI_API_KEY: ${AI_API_KEY:-}
   #     AI_MODEL: ${AI_MODEL:-gemini-3.5-flash}
@@ -68,6 +71,7 @@ services:
   #   build:
   #     context: .
   #     dockerfile: apps/customer-portal/Dockerfile
+  #   container_name: customer-portal
   #   ports:
   #     - "${CUSTOMER_PORTAL_HOST_PORT:-3001}:3000"
   #   healthcheck:
@@ -76,9 +80,26 @@ services:
   #     timeout: 5s
   #     retries: 10
 
+  jsreport:
+    image: jsreport/jsreport:4.10.0
+    container_name: js-report-service
+    restart: unless-stopped
+    shm_size: "1gb"
+    # No host port and no CORS: only core-api calls jsreport, over the compose network at
+    # http://jsreport:5488. The browser never does — jsreport cannot tell who is signed in.
+    # Dev publishes it on loopback via docker-compose.override.yml for core-api and Studio.
+    environment:
+      extensions_authentication_enabled: "true"
+      extensions_authentication_admin_username: ${JSREPORT_USER:-admin}
+      extensions_authentication_admin_password: ${JSREPORT_PASSWORD:-change_me_jsreport}
+      extensions_authentication_cookieSession_secret: ${JSREPORT_COOKIE_SECRET:-change_me_jsreport_cookie}
+    volumes:
+      - jsreport-data:/app/data
+
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
+    container_name: minio-service
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change_me_minio}
@@ -95,6 +116,7 @@ services:
 
   minio-init:
     image: minio/mc:latest
+    container_name: minio-initializer
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change_me_minio}
@@ -119,3 +141,4 @@ services:
 volumes:
   postgres-data:
   minio-data:
+  jsreport-data:

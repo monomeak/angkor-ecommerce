@@ -48,7 +48,7 @@ after the templates exist.
 
 ## 7–11 — jsreport and PDFs
 
-- [ ] **Harden the compose service.** The current `jsreport` service publishes `5480:5488`,
+- [x] **Harden the compose service.** *Auth on, no CORS, no base port; dev publishes `127.0.0.1:5480` from the override, prod requires the credentials.* The current `jsreport` service publishes `5480:5488`,
       sets `JSREPORT_ENABLE_XSRF_PROTECTION=false` and `CORS_ORIGIN=*`, and has no
       authentication. Guide §2 is explicit that the browser must never talk to jsreport
       directly and §7 that it should be internal-only in production, with the published port

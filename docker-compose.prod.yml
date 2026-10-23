@@ -16,6 +16,12 @@ services:
       MINIO_APP_ACCESS_KEY: ${MINIO_APP_ACCESS_KEY:?Set MINIO_APP_ACCESS_KEY in your environment for prod}
       MINIO_APP_SECRET_KEY: ${MINIO_APP_SECRET_KEY:?Set MINIO_APP_SECRET_KEY in your environment for prod}
 
+  jsreport:
+    environment:
+      extensions_authentication_admin_username: ${JSREPORT_USER:?Set JSREPORT_USER in your environment for prod}
+      extensions_authentication_admin_password: ${JSREPORT_PASSWORD:?Set JSREPORT_PASSWORD in your environment for prod}
+      extensions_authentication_cookieSession_secret: ${JSREPORT_COOKIE_SECRET:?Set JSREPORT_COOKIE_SECRET in your environment for prod}
+
   core-api:
     environment:
       SPRING_PROFILES_ACTIVE: prod
