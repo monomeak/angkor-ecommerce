@@ -6,35 +6,38 @@ import { env } from "@/lib/env";
 // Server-only — NEVER prefix these with NEXT_PUBLIC_, or they'd ship to the browser.
 const requestSchema = z.object({
   periodLabel: z.string().min(1).max(50),
+  startDate: z.string(),
+  endDate: z.string(),
+  currency: z.string(),
   locale: z.string(),
-  statusByMonth: z.array(
+  totals: z.object({
+    customers: z.number(),
+    items: z.number(),
+    discount: z.number(),
+    revenue: z.number(),
+  }),
+  salesByCategory: z.array(
     z.object({
-      month: z.string(),
-      paid: z.number(),
-      pending: z.number(),
-      overdue: z.number(),
-      draft: z.number(),
-    }),
-  ),
-  topCustomers: z.array(
-    z.object({
-      fullName: z.string(),
-      company: z.string(),
-      invoiceCount: z.number(),
-      totalRevenue: z.number(),
+      category: z.string(),
+      unitsSold: z.number(),
+      discount: z.number(),
+      revenue: z.number(),
+      share: z.number(),
     }),
   ),
 });
 const AI_API_KEY = env.AI_API_KEY;
 const AI_MODEL = env.AI_MODEL;
 
-const SYSTEM_PROMPT = `You are a financial analyst assistant for a small invoicing business.
-You will be given aggregated invoice data (never raw customer records) as JSON.
+const SYSTEM_PROMPT = `You are a financial analyst assistant for a small retail business.
+You will be given aggregated sales data (never raw customer or invoice records) as JSON.
+The figures are on a cash basis: they count only invoices that were paid, in the period the money arrived.
 Write a concise, plain-English summary (3-5 short paragraphs or bullet points) covering:
-- The overall trend in paid vs pending vs overdue amounts across the months shown
-- Any months that stand out (high overdue, low collections, unusual spikes/drops)
-- What the top-customer concentration looks like (is a large share of revenue coming from just a few customers?)
-Only reference numbers that are actually present in the data. Be direct, skip filler and disclaimers.`;
+- How the period performed overall: revenue, how many customers paid, and the average spend per customer
+- Which categories carry the period, and how concentrated revenue is in the top one or two
+- Anything that stands out: a category with high units but low revenue, or an unusually large discount share
+Only reference numbers that are actually present in the data, and never invent a month-by-month trend — the data is one period, not a series.
+Be direct, skip filler and disclaimers.`;
 
 /**
  * VERY BASIC in-memory rate limit — resets on server restart and does

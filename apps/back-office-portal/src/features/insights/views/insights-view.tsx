@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -9,62 +10,59 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useStatusByMonth } from "../../reports/hooks/use-status-by-month";
-import { useTopCustomers } from "../../reports/hooks/use-top-customers";
+import { useReport } from "../../reports/hooks/use-report";
+import { REPORT_PERIODS, type ReportPeriod } from "../../reports/types/report";
 import { GenerateInsightsButton } from "../components/generate-insights-button";
 import { InsightsPanel } from "../components/insights-panel";
 import { useGenerateInsights } from "../hooks/use-generate-insights";
 import { useTypewriterBuffer } from "../hooks/use-typewriter-butter";
-import { useLocale } from "next-intl";
+import { toInsightsPayload } from "../lib/to-insights-payload";
 
-const PERIOD_OPTIONS = {
-  all: "Overall insight",
-  "3": "Last 3 months",
-  "6": "Last 6 months",
-} as const;
-
-type Period = keyof typeof PERIOD_OPTIONS;
+const PERIOD_LABELS: Record<ReportPeriod, string> = {
+  this_month: "This month (to date)",
+  last_3_months: "Last 3 months",
+  last_6_months: "Last 6 months",
+  last_12_months: "Last 12 months",
+};
 
 export function InsightsView() {
-  const [period, setPeriod] = useState<Period>("all");
+  const [period, setPeriod] = useState<ReportPeriod>("last_3_months");
   const locale = useLocale();
-  const months = period === "all" ? undefined : Number(period);
-  const { data: statusByMonth, isLoading: statusLoading } =
-    useStatusByMonth(months);
-  const { data: topCustomers, isLoading: customerLoading } =
-    useTopCustomers(months);
+
+  /*
+   * The same two reports the /reports page draws, so the AI can never comment on numbers that
+   * differ from the ones the reader can see for themselves.
+   */
+  const { data: invoices, isLoading: invoicesLoading } = useReport({
+    type: "invoices",
+    period,
+  });
+  const { data: categories, isLoading: categoriesLoading } = useReport({
+    type: "sales-by-category",
+    period,
+  });
+
   const { mutate, isPending, isError, error } = useGenerateInsights();
   const { displayedText, push, reset, isRevealing } = useTypewriterBuffer();
 
   const isStillTyping = isPending || isRevealing;
   const isDataReady =
-    !statusLoading && !customerLoading && statusByMonth.length > 0;
+    !invoicesLoading &&
+    !categoriesLoading &&
+    Boolean(invoices && categories) &&
+    (categories?.rows.length ?? 0) > 0;
 
   const handleGenerate = () => {
+    if (!invoices || !categories) return;
+
     reset();
     mutate({
-      payload: {
-        periodLabel: PERIOD_OPTIONS[period],
+      payload: toInsightsPayload({
+        periodLabel: PERIOD_LABELS[period],
         locale,
-        statusByMonth: statusByMonth.map(
-          ({ month, paid, pending, overdue, draft }) => ({
-            month,
-            paid,
-            pending,
-            overdue,
-            draft,
-          }),
-        ),
-        // Deliberately omit private customer fields before calling the AI.
-        topCustomers: topCustomers.map(
-          ({ fullName, company, invoiceCount, totalRevenue }) => ({
-            fullName,
-            company,
-            invoiceCount,
-            totalRevenue,
-          }),
-        ),
-      },
+        invoices,
+        categories,
+      }),
       onChunk: push,
     });
   };
@@ -74,22 +72,25 @@ export function InsightsView() {
       <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="text-base font-semibold">AI Insights</CardTitle>
         <div className="flex items-center gap-2">
-          <label htmlFor="select">Target:</label>
+          <label htmlFor="insights-period">Target:</label>
           <Select
             value={period}
             disabled={isStillTyping}
             onValueChange={(value) => {
-              setPeriod(value as Period);
+              setPeriod(value as ReportPeriod);
               reset();
             }}
           >
-            <SelectTrigger aria-label="Insight reporting period">
+            <SelectTrigger
+              id="insights-period"
+              aria-label="Insight reporting period"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(PERIOD_OPTIONS).map(([value, label]) => (
+              {REPORT_PERIODS.map((value) => (
                 <SelectItem key={value} value={value}>
-                  {label}
+                  {PERIOD_LABELS[value]}
                 </SelectItem>
               ))}
             </SelectContent>
