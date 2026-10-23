@@ -6,6 +6,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,6 +24,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
@@ -68,6 +72,61 @@ public class GlobalExceptionHandler {
                 fieldErrors
             )
         );
+    }
+
+    /**
+     * Query and path parameters bind through the ConversionService, so a bad one throws here and
+     * not as a MethodArgumentNotValidException. Without this it would fall to the catch-all below
+     * and answer ?period=banana with a 500.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(
+        MethodArgumentTypeMismatchException ex,
+        HttpServletRequest request
+    ) {
+        Class<?> target = ex.getRequiredType();
+        String expected =
+            target != null && target.isEnum()
+                ? Arrays.stream(target.getEnumConstants())
+                      .map(value -> ((Enum<?>) value).name().toLowerCase())
+                      .collect(Collectors.joining(", "))
+                : target == null
+                  ? "a different type"
+                  : target.getSimpleName();
+
+        log.warn("Unbindable parameter on {}: {}", request.getRequestURI(), ex.getMessage());
+
+        return build(
+            HttpStatus.BAD_REQUEST,
+            "Validation Failed",
+            "Invalid value for '%s': expected one of %s".formatted(ex.getName(), expected),
+            request
+        );
+    }
+
+    /** Constraints on @RequestParam arguments of an @Validated controller land here, not above. */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(
+        ConstraintViolationException ex,
+        HttpServletRequest request
+    ) {
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        ex.getConstraintViolations().forEach(violation -> fieldErrors.put(lastNode(violation), violation.getMessage()));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ErrorResponse.ofValidation(
+                400,
+                "Validation Failed",
+                "Request validation failed",
+                request.getRequestURI(),
+                fieldErrors
+            )
+        );
+    }
+
+    private static String lastNode(ConstraintViolation<?> violation) {
+        String path = violation.getPropertyPath().toString();
+        return path.substring(path.lastIndexOf('.') + 1);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
