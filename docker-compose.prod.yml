@@ -35,6 +35,9 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET:-angkor-commerce-media}
       # Externally reachable URL used to build public image links (CDN/reverse-proxy domain in real prod).
       MINIO_PUBLIC_BASE_URL: ${MINIO_PUBLIC_BASE_URL:?Set MINIO_PUBLIC_BASE_URL, e.g. https://media.yourdomain.com/angkor-commerce-media}
+      JSREPORT_URL: http://jsreport:5488
+      JSREPORT_USER: ${JSREPORT_USER:?Set JSREPORT_USER in your environment for prod}
+      JSREPORT_PASSWORD: ${JSREPORT_PASSWORD:?Set JSREPORT_PASSWORD in your environment for prod}
     depends_on:
       minio-init:
         condition: service_completed_successfully

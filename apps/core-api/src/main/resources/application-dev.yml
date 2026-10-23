@@ -86,6 +86,13 @@ angkor:
     wallet:
         seed:
             enabled: true
+    jsreport:
+        # core-api runs on the host in dev, so it reaches jsreport through the loopback port
+        # docker-compose.override.yml publishes. Same fallbacks as the compose file.
+        url: ${JSREPORT_URL:http://localhost:5480}
+        username: ${JSREPORT_USER:admin}
+        password: ${JSREPORT_PASSWORD:change_me_jsreport}
+        timeout: 30s
 
 management:
     endpoints:

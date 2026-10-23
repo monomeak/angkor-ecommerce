@@ -255,6 +255,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // 503, not 500: the data is fine, the renderer is not, and the client can retry.
+    // JsReportRenderer has already logged jsreport's own error body.
+    @ExceptionHandler(PdfGenerationException.class)
+    public ResponseEntity<ErrorResponse> handlePdf(PdfGenerationException ex, HttpServletRequest request) {
+        log.warn("PDF generation failed on {}: {}", request.getRequestURI(), ex.getMessage());
+        return build(HttpStatus.SERVICE_UNAVAILABLE, "Service Unavailable", ex.getMessage(), request);
+    }
+
     private ResponseEntity<ErrorResponse> build(
         HttpStatus status,
         String error,

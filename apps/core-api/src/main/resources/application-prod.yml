@@ -49,6 +49,11 @@ angkor:
             bucket: ${MINIO_BUCKET}
             public-base-url: ${MINIO_PUBLIC_BASE_URL}
     default-currency: USD
+    jsreport:
+        url: ${JSREPORT_URL}
+        username: ${JSREPORT_USER}
+        password: ${JSREPORT_PASSWORD}
+        timeout: 30s
     image:
         max-width: ${IMAGE_MAX_WIDTH:400}
         max-height: ${IMAGE_MAX_HEIGHT:400}

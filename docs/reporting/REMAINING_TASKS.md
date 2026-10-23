@@ -60,10 +60,10 @@ after the templates exist.
       `document/`, `report/`.
 - [ ] **Render both sample payloads in Studio before writing any Java** (§12 step 8, §13) —
       `files-for-js-report/invoice-sample-payload.json` and the discounted variant.
-- [ ] `JsReportProperties` + `RestClient` bean + `JsReportRenderer`. Log
+- [x] `JsReportProperties` + `RestClient` bean + `JsReportRenderer`. Log
       `getResponseBodyAsString()` on a 400 — jsreport puts the template stack trace there, and
       without it template bugs are near-undebuggable (§9).
-- [ ] `PdfGenerationException` → **503**, not 500: the data is fine, the renderer isn't, and
+- [x] `PdfGenerationException` → **503**, not 500: the data is fine, the renderer isn't, and
       the client can retry.
 - [ ] `GET /invoices/{id}/pdf` with the ownership check (`hasRole('ADMIN') or
       @invoiceAccess.isOwner(...)`) — without it, changing `8` to `9` in the URL downloads a
