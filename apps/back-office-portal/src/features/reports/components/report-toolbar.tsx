@@ -1,11 +1,14 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Download } from "lucide-react";
+import { Download, FileText, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ApiError } from "@/lib/api-client";
 import { downloadCsv } from "@/src/shared/lib/csv-export";
+import { useReportPdf } from "../hooks/use-report-pdf";
 import { reportCsvFilename, toReportCsv } from "../lib/report-csv";
 import { REPORT_PERIODS, REPORT_TYPES, type Report, type ReportParams } from "../types/report";
 
@@ -25,6 +28,14 @@ export function ReportToolbar({ params, report, onChange }: ReportToolbarProps) 
     const handleExport = () => {
         if (!report) return;
         downloadCsv(reportCsvFilename(report), toReportCsv(report));
+    };
+
+    const pdf = useReportPdf();
+
+    const handlePdf = () => {
+        pdf.mutate(params, {
+            onError: (error) => toast.error(error instanceof ApiError ? error.displayMessage : t("pdfError"))
+        });
     };
 
     return (
@@ -69,15 +80,23 @@ export function ReportToolbar({ params, report, onChange }: ReportToolbarProps) 
                 </div>
             </div>
 
-            <Button
-                variant="outline"
-                className="gap-1.5"
-                onClick={handleExport}
-                disabled={!report || report.rows.length === 0}
-            >
-                <Download className="size-3.5" />
-                {t("exportCsv")}
-            </Button>
+            <div className="flex gap-2">
+                <Button
+                    variant="outline"
+                    className="gap-1.5"
+                    onClick={handleExport}
+                    disabled={!report || report.rows.length === 0}
+                >
+                    <Download className="size-3.5" />
+                    {t("exportCsv")}
+                </Button>
+
+                {/* Disabled while in flight: a Chrome render takes a few hundred ms, and a double-click renders twice. */}
+                <Button variant="outline" className="gap-1.5" onClick={handlePdf} disabled={!report || pdf.isPending}>
+                    {pdf.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <FileText className="size-3.5" />}
+                    {pdf.isPending ? t("pdfPending") : t("exportPdf")}
+                </Button>
+            </div>
         </div>
     );
 }

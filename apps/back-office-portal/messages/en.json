@@ -292,7 +292,10 @@
     "balanceDue": "Balance due",
     "payments": "Payments",
     "noPayments": "Nothing paid yet.",
-    "cancelledOn": "Cancelled {date}"
+    "cancelledOn": "Cancelled {date}",
+    "downloadPdf": "Download PDF",
+    "pdfPending": "Preparing PDF…",
+    "pdfError": "We couldn't generate the PDF. Please try again."
   },
   "Reports": {
     "reportType": "Report",
@@ -313,6 +316,9 @@
     "loading": "Loading\u2026",
     "error": "We couldn't load the report. Please try again.",
     "forbidden": "Your session doesn't have access to reports.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "exportPdf": "Export PDF",
+    "pdfPending": "Preparing PDF…",
+    "pdfError": "We couldn't generate the PDF. Please try again."
   }
 }

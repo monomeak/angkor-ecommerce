@@ -73,7 +73,7 @@ after the templates exist.
 - [x] `GET /reports/invoices/pdf`, `GET /reports/sales-by-category/pdf`.
 - [ ] Receipt branch on the `document` template (`docType=RECEIPT` drops due date, balance and
       the status pill).
-- [ ] Wire the PDF buttons into `/reports` and the invoice detail page. Disable while in
+- [x] Wire the PDF buttons into `/reports` and the invoice detail page. Disable while in
       flight — a Chrome render takes a few hundred ms and a double-click renders twice.
 
 **The `report` template must consume `columns[]`**, exactly as `ReportTable` and
