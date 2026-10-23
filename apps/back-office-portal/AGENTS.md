@@ -5,7 +5,7 @@ Frontend for Angkor Commerce. See [`docs/ANGKOR_COMMERCE_PROJECT_PROPOSAL.md`](.
 
 ## Stack
 
-Next.js 16 App Router, React 19, TypeScript 5, Tailwind CSS 4, shadcn/ui, Base UI, TanStack React Query 5, TanStack React Table 8, React Hook Form 7 + `@hookform/resolvers`, Zod 4, Recharts 3, Sonner, Lucide React. Auth, the product catalogue, the customer directory, invoices and the dashboard overview now talk to the shared Spring Boot API (`apps/core-api`) through `lib/api-client.ts`; reports and the profile feature are still on DummyJSON-shaped mock data and have not been ported yet.
+Next.js 16 App Router, React 19, TypeScript 5, Tailwind CSS 4, shadcn/ui, Base UI, TanStack React Query 5, TanStack React Table 8, React Hook Form 7 + `@hookform/resolvers`, Zod 4, Recharts 3, Sonner, Lucide React. Auth, the product catalogue, the customer directory, invoices, the dashboard overview and reports now talk to the shared Spring Boot API (`apps/core-api`) through `lib/api-client.ts`; the profile feature is still on DummyJSON-shaped mock data and has not been ported yet.
 
 ## Structure and conventions
 
@@ -38,7 +38,7 @@ Invoices work the same way and for the same reason: core-api issues an invoice o
 - A receipt is a document, so it has a URL: `/invoices/[invoiceId]` renders the full record and prints through `data-print-region` plus the `@media print` block at the bottom of `app/globals.css`. There is no print route and no details dialog.
 - **There is no OVERDUE status in core-api** — `InvoiceMapper` has a note about it and no implementation. `lib/invoice-display.ts` derives it for the badge from `dueDate < today && balance > 0`, in Phnom Penh time so an invoice due today doesn't read as overdue. The status *filter* only offers what the API can filter on, which is why OVERDUE is absent from it.
 - The list's date range params are named `issuedFrom`/`issuedTo`/`dueFrom`/`dueTo` in the URL but `issueDateFrom`/... on the wire — the short forms read better in a shared link. Only the **issued** range has a control: the due-date range is still parsed, sent and cleared, so a hand-written `?dueFrom=` works, but a second pair of date boxes was noise on the toolbar. `search` matches the invoice number or the customer's name, company or email.
-- `src/features/invoices/mock/` is the old DummyJSON `/carts` invoice model, kept **only** because the reports screens still aggregate it client-side. Its statuses (`paid | pending | overdue | draft`) are invented and are not core-api's. It keys its cache as `["invoices", "mock"]` so it never collides with the real list. Delete it when reports is ported.
+- `src/features/invoices/mock/` is **gone**, deleted with the client-side aggregation it existed for when reports was ported. Its statuses (`paid | pending | overdue | draft`) were invented and never core-api's, so nothing in the app reports them any more.
 
 The overview dashboard is one call — `GET /dashboard/overview?months=6` — behind all four of its widgets, because four aggregate queries in one transaction beat four endpoints the client has to assemble:
 
@@ -48,9 +48,19 @@ The overview dashboard is one call — `GET /dashboard/overview?months=6` — be
 - Money is summed across invoices and payments without grouping by currency — the shop trades in one, and `summary.currency` says which (`angkor.default-currency`). A second currency makes these totals meaningless and needs the API to group first.
 - The mock fallback in `api/dashboard-api.ts` is gone: a dashboard that quietly shows invented numbers when the API is down is worse than one that says it could not load.
 
-Still on mock data: landing page, profile + appearance/privacy settings, reports. Reports looks customers up through the ported `customers` API but feeds it DummyJSON invoice user ids, so most of those lookups 404 and the rows fall back to "Customer #id" until invoices are ported.
+Reports is one generic screen over two core-api endpoints, `GET /reports/invoices` and `GET /reports/sales-by-category`, and adding a third report is a backend-only change:
 
-Placeholder routes with little/no view wired up: `/reports`, `/analytics`, `/team`.
+- core-api ships `columns[]` **with** the data, so `ReportTable` and the CSV writer loop the columns and read each row by `column.key` rather than knowing any report's fields. `lib/report-cells.ts` is the screen twin of the `cell` helper in the jsreport template, so the PDF and the table cannot disagree about a column's meaning.
+- Reports are **cash basis**: paid invoices only, counted in the period the money arrived (`invoices.paid_at`), not when they were issued. `basis` says so in the payload and in the CSV metadata rows.
+- The phone column is `SUPER_ADMIN` only and is absent from `columns[]` entirely for a shop admin — not blanked out. Don't "fix" the table to show it.
+- CSV exports the raw numbers from the payload already on screen, never a second request: a spreadsheet has to be able to sum the column, and `$1,083.50` is text.
+- `?type=` and `?period=` are the URL source of truth, both validated on the way in so a hand-edited value falls back to the default instead of 400ing.
+
+The analytics page feeds the AI those same two reports (`lib/to-insights-payload.ts`) — **aggregates only**, no invoice numbers, customer names or phone numbers. The old per-month `paid/pending/overdue/draft` prompt is gone with the mock that invented those statuses; the prompt now covers period totals and category concentration.
+
+Still on mock data: landing page, profile + appearance/privacy settings.
+
+Placeholder routes with little/no view wired up: `/team`.
 
 Self-service registration is disabled: core-api's back-office `AuthController` has no `/register`, so `registerRequest()` throws a 501 with an explanation. Staff accounts come from the admin-only `POST /users`.
 
