@@ -320,5 +320,28 @@
     "exportPdf": "Export PDF",
     "pdfPending": "Preparing PDF…",
     "pdfError": "We couldn't generate the PDF. Please try again."
+  },
+  "Profile": {
+    "personalTitle": "Personal",
+    "personalDescription": "Your name and how to reach you.",
+    "userId": "User ID",
+    "username": "Username",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "noPhone": "No phone number",
+    "editProfile": "Edit profile",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "saved": "Profile updated",
+    "changePhoto": "Change photo",
+    "photoHint": "Click the photo to change it — JPEG, PNG or WebP, up to 5 MB.",
+    "photoInvalid": "The photo must be a JPEG, PNG or WebP image of 5 MB or less.",
+    "accessTitle": "Account access",
+    "accessDescription": "Your role decides what you can see and change.",
+    "roleManaged": "Your role is assigned by an administrator and cannot be changed here.",
+    "loadError": "We couldn't load your profile."
   }
 }

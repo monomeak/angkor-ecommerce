@@ -1,115 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { useCurrentUser } from "@/src/features/auth/hooks/use-current-user";
+import { useAppConfig } from "@/components/providers/app-config-provider";
+import { authKeys } from "@/src/features/auth/lib/query-keys";
+import type { CurrentUser } from "@/src/features/auth/types/auth";
 
-import { getProfileResponse } from "../api/profile-api";
-import { mapProfileResponse } from "../mappers/profile.mapper";
-import type { EditableProfileField, UserProfile } from "../types/profile";
+import { updateProfile, uploadProfileImage } from "../api/profile-api";
+import type { UpdateProfilePayload } from "../types/profile";
 
-const initialProfile = mapProfileResponse(getProfileResponse());
+/*
+ * The profile *is* the current user, so there is no profile query: both mutations write
+ * their response straight into the /auth/me cache, which also updates the sidebar avatar
+ * and name without a refetch.
+ */
 
-export function useProfile() {
-  const { data: currentUser } = useCurrentUser();
-  const authProfile = currentUser
-    ? {
-        ...initialProfile,
-        id: currentUser.id,
-        firstName: currentUser.firstName,
-        lastName: currentUser.lastName,
-        email: currentUser.email,
-        username: currentUser.username,
-        // core-api returns a MinIO object key or null; the rest of this feature still
-        // runs on the DummyJSON mock (gender, birthDate, company, address), so those
-        // fields keep coming from initialProfile until the profile port lands.
-        image: currentUser.image ?? initialProfile.image,
-        role: currentUser.role,
-      }
-    : initialProfile;
+export function useUpdateProfile() {
+    const queryClient = useQueryClient();
+    const { apiBaseUrl } = useAppConfig();
 
-  const [savedProfile, setSavedProfile] = useState<UserProfile | null>(null);
-  const [draftProfile, setDraftProfile] = useState<UserProfile | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const activeSavedProfile =
-    savedProfile?.id === authProfile.id ? savedProfile : authProfile;
-  const formProfile = draftProfile ?? activeSavedProfile;
-
-  const updateProfile = (field: EditableProfileField, value: string) => {
-    setDraftProfile((currentProfile) => ({
-      ...(currentProfile ?? formProfile),
-      [field]: value,
-    }));
-  };
-
-  const updateCompany = (
-    field: keyof UserProfile["company"],
-    value: string,
-  ) => {
-    setDraftProfile((currentProfile) => ({
-      ...(currentProfile ?? formProfile),
-      company: {
-        ...(currentProfile ?? formProfile).company,
-        [field]: value,
-      },
-    }));
-  };
-
-  const updateAddress = (
-    field: keyof UserProfile["address"],
-    value: string,
-  ) => {
-    setDraftProfile((currentProfile) => ({
-      ...(currentProfile ?? formProfile),
-      address: {
-        ...(currentProfile ?? formProfile).address,
-        [field]: value,
-      },
-    }));
-  };
-
-  const updateProfileImage = (file: File | undefined) => {
-    if (!file) {
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      if (typeof reader.result === "string") {
-        setDraftProfile((currentProfile) => ({
-          ...(currentProfile ?? formProfile),
-          image: reader.result as string,
-        }));
-      }
+    return useMutation<CurrentUser, unknown, UpdateProfilePayload>({
+        mutationFn: (payload) => updateProfile(apiBaseUrl, payload),
+        onSuccess: (user) => queryClient.setQueryData(authKeys.currentUser(), user)
     });
-    reader.readAsDataURL(file);
-  };
+}
 
-  const startEditing = () => {
-    setDraftProfile(activeSavedProfile);
-    setIsEditing(true);
-  };
+export function useUploadProfileImage() {
+    const queryClient = useQueryClient();
+    const { apiBaseUrl } = useAppConfig();
 
-  const saveProfile = () => {
-    setSavedProfile(formProfile);
-    setDraftProfile(null);
-    setIsEditing(false);
-  };
-
-  const cancelEditing = () => {
-    setDraftProfile(null);
-    setIsEditing(false);
-  };
-
-  return {
-    formProfile,
-    isEditing,
-    updateProfile,
-    updateCompany,
-    updateAddress,
-    updateProfileImage,
-    startEditing,
-    saveProfile,
-    cancelEditing,
-  };
+    return useMutation<CurrentUser, unknown, File>({
+        mutationFn: (file) => uploadProfileImage(apiBaseUrl, file),
+        onSuccess: (user) => queryClient.setQueryData(authKeys.currentUser(), user)
+    });
 }

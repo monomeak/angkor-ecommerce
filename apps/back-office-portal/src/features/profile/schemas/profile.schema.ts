@@ -1,29 +1,14 @@
 import { z } from "zod";
 
-export const profileSchema = z.object({
-  id: z.number(),
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.email(),
-  phone: z.string(),
-  username: z.string(),
-  image: z.url(),
-  gender: z.enum(["male", "female"]),
-  birthDate: z.string(),
-  role: z.enum(["super_admin", "shop_admin", "staff"]),
-  company: z.object({
-    name: z.string(),
-    department: z.string(),
-    title: z.string(),
-  }),
-  address: z.object({
-    address: z.string(),
-    city: z.string(),
-    state: z.string(),
-    postalCode: z.string(),
-    country: z.string(),
-  }),
+/** Mirrors core-api's UpdateProfileRequest constraints. */
+export const profileFormSchema = z.object({
+    firstName: z.string().trim().min(1, "First name is required").max(100, "First name must be at most 100 characters"),
+    lastName: z.string().trim().min(1, "Last name is required").max(100, "Last name must be at most 100 characters"),
+    email: z.string().trim().pipe(z.email("Email must be a valid email address")),
+    phone: z.string().trim()
 });
 
-// This also doubles as our validated DummyUserResponse type
-export type ValidatedProfile = z.infer<typeof profileSchema>;
+export type ProfileFormValues = z.infer<typeof profileFormSchema>;
+
+export const PROFILE_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+export const PROFILE_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
