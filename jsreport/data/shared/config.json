@@ -1,0 +1,6 @@
+{
+    "name": "shared",
+    "shortid": "shared",
+    "_id": "folder-shared",
+    "$entitySet": "folders"
+}

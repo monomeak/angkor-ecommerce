@@ -1,6 +1,13 @@
 import { ApiError, apiFetch, parseResponse } from "@/lib/api-client";
 import { authCustomerSchema, currentCustomerSchema } from "../schemas/customer.schema";
-import type { AuthCustomer, CurrentCustomer, LoginPayload, RegisterPayload, UpdateProfilePayload } from "../types/auth";
+import type {
+    AuthCustomer,
+    ChangePasswordPayload,
+    CurrentCustomer,
+    LoginPayload,
+    RegisterPayload,
+    UpdateProfilePayload
+} from "../types/auth";
 
 const AUTH_BASE = "/storefront/auth";
 
@@ -53,6 +60,17 @@ export async function updateProfileRequest(
     });
 
     return parseResponse(currentCustomerSchema, data);
+}
+
+/**
+ * 204 with the auth cookies cleared: core-api revokes every refresh token the customer holds,
+ * this browser's included, so every session signs in again with the new password.
+ */
+export async function changePasswordRequest(apiBaseUrl: string, payload: ChangePasswordPayload): Promise<void> {
+    await apiFetch<void>(apiBaseUrl, `${AUTH_BASE}/me/password`, {
+        method: "PUT",
+        body: JSON.stringify(payload)
+    });
 }
 
 export async function uploadProfileImageRequest(

@@ -151,3 +151,38 @@ export async function apiFetch<T>(apiBaseUrl: string, path: string, options: Api
 
     return parseBody<T>(response);
 }
+
+export type DownloadedFile = {
+    readonly blob: Blob;
+    /** From Content-Disposition, when the API set one. */
+    readonly filename: string | undefined;
+};
+
+function filenameFrom(contentDisposition: string | null): string | undefined {
+    return contentDisposition?.match(/filename="?([^";]+)"?/)?.[1];
+}
+
+/**
+ * apiFetch for binary bodies (PDFs). Same session refresh and error envelope — a failed render
+ * comes back as the JSON error body, not as a broken file.
+ */
+export async function apiFetchFile(apiBaseUrl: string, path: string, accept: string): Promise<DownloadedFile> {
+    const init: RequestInit = { headers: { Accept: accept } };
+
+    let response: Response;
+    try {
+        response = await fetch(buildRequest(apiBaseUrl, path, init));
+    } catch {
+        throw new ApiError("Can't reach the server. Check your connection and try again.", 0);
+    }
+
+    if (response.status === 401 && (await refreshSession(apiBaseUrl))) {
+        response = await fetch(buildRequest(apiBaseUrl, path, init));
+    }
+
+    if (!response.ok) {
+        throw await toApiError(response);
+    }
+
+    return { blob: await response.blob(), filename: filenameFrom(response.headers.get("Content-Disposition")) };
+}

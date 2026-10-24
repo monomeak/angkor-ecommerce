@@ -12,7 +12,8 @@ export function canEditMember(
   target: TeamMember,
 ): boolean {
   if (!canManageTeam(actorRole)) return false;
-  if (String(actorUserId) === target.id) return false; // his / him self edit
+  if (actorUserId === target.id) return false; // his / him self edit
+  if (target.status !== "active") return false;
 
   return getRoleRank(actorRole) >= getRoleRank(target.role);
 }

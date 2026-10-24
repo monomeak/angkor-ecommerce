@@ -8,6 +8,7 @@ public record InvoiceItemResponse(
     Long productId,
     String sku,
     String title,
+    String category, // root category at the sale; null on manual lines
     String description,
     String thumbnail, // resolved URL, not the object key
     String unit,

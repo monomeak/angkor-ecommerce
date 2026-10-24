@@ -23,6 +23,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           // core-api hands back a raw MinIO object key, not a URL.
           profilePath={resolveMediaUrl(mediaBaseUrl, currentProfile?.image)}
           userName={currentProfile?.firstName}
+          userInitials={
+            currentProfile
+              ? `${currentProfile.firstName[0] ?? ""}${currentProfile.lastName[0] ?? ""}` ||
+                currentProfile.username[0]
+              : undefined
+          }
         ></DashboardHeader>
         <main className="flex-1 px-4 py-4 md:p-6">
           <div className="mx-auto w-full max-w-7xl">{children}</div>

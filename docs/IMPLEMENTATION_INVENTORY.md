@@ -101,7 +101,7 @@ Auth rules come from [SecurityConfig.java:25-85](../apps/core-api/src/main/java/
 | GET | `` | authenticated only | `ProductQueryParams` (query) | `PageResponse<ProductSummaryResponse>` |
 | GET | `/{id}` | authenticated only | — | `ProductResponse` |
 | PATCH | `/{id}` | authenticated only | `UpdateProductRequest` | `ProductResponse` |
-| DELETE | `/{id}` | `@PreAuthorize` SHOP_ADMIN, SUPER_ADMIN | — | `ProductDeleteResponse` |
+| DELETE | `/{id}` | `@IsShopUser` (STAFF, SHOP_ADMIN, SUPER_ADMIN) | — | `ProductDeleteResponse` |
 | POST | `/{id}/variants` | authenticated only | `CreateProductVariantRequest` | 201 `ProductVariantResponse` |
 | PATCH | `/{id}/variants/{variantId}` | authenticated only | `UpdateProductVariantRequest` | `ProductVariantResponse` |
 | DELETE | `/{id}/variants/{variantId}` | authenticated only | — | 204 |
@@ -124,7 +124,7 @@ GET `` (`skip`,`limit`,`search`) → `PageResponse<CustomerResponse>` · GET `/{
 
 **GlobalExceptionHandler** — 11 handlers, all implemented: `ResourceNotFoundException`→404, `ValidationException`→400 (+field map), `MethodArgumentNotValidException`→400, `DataIntegrityViolationException`→409, `BadCredentialsException`→401, `AuthenticationException`→401, `AccessDeniedException`→403, `InvalidImageException`→400, `ImageStorageException`→502, `NoResourceFoundException`→404, `HttpMessageNotReadableException`→400, `StorageException`→500, `Exception`→500. Not handled: `jakarta.validation.ValidationException` (thrown in two places — see bugs).
 
-**Security config** — `JwtAuthenticationFilter` (cookie-based, `accessToken`, no DB hit), `HttpRequestLoggingFilter`, `RestAuthenticationEntryPoint`, `CustomAccessDeniedHandler`, CSRF disabled, stateless, `@EnableMethodSecurity`. JWT: HS256, `typ` claim splits staff/customer, `uid` + `role`; refresh tokens are opaque random strings stored hashed with rotation-on-refresh. Public paths: `/actuator/health`, `/actuator/info`, `/api/v1/auth/login`, `/api/v1/auth/refresh`, storefront `register`/`login`/`refresh`, `/v3/api-docs/**`, `/swagger-ui/**`, `/swagger-ui.html`, plus `GET /api/v1/categories/**`.
+**Security config** — `JwtAuthenticationFilter` (cookie-based, `accessToken`, no DB hit), `HttpRequestLoggingFilter`, `RestAuthenticationEntryPoint`, `CustomAccessDeniedHandler`, CSRF disabled, stateless, `@EnableMethodSecurity`. JWT: HS256, `typ` claim splits staff/customer, `uid` + `role`; refresh tokens are opaque random strings stored hashed with rotation-on-refresh. Public paths: `/actuator/health`, `/actuator/info`, `/api/v1/auth/login`, `/api/v1/auth/refresh`, storefront `register`/`login`/`refresh`, `/v3/api-docs/**`, `/scalar`, `/scalar/**`, plus `GET /api/v1/categories/**`.
 
 **File/object storage** — Fully implemented against MinIO: `MinioImageStorageService` (upload, uploadBytes, delete, deleteQuietly, exists, resolveUrl), `MinioBucketInitializer` (creates bucket on startup), `ImageValidator` (size + content-type — **no magic-byte check despite the comment at `ProductServiceImpl.java:210` claiming one**), `ThumbnailGenerator` (Thumbnailator, 400×400 @0.8), `ImageObjectKeyFactory`, `StorageCleanup` (commit/rollback hooks), `ImageReplacementListener` (after-commit old-image delete). Nothing stubbed; one hook is non-functional (see bugs).
 

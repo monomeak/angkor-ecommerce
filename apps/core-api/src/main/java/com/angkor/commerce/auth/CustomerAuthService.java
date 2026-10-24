@@ -1,5 +1,6 @@
 package com.angkor.commerce.auth;
 
+import com.angkor.commerce.auth.dto.request.ChangePasswordRequest;
 import com.angkor.commerce.auth.dto.request.CustomerLoginRequest;
 import com.angkor.commerce.auth.dto.request.RegisterCustomerRequest;
 import com.angkor.commerce.auth.dto.request.UpdateCustomerProfileRequest;
@@ -16,4 +17,5 @@ public interface CustomerAuthService {
     CurrentCustomerResponse getCurrentCustomer(String email);
     CurrentCustomerResponse updateCurrentUser(Long userId, UpdateCustomerProfileRequest request);
     CurrentCustomerResponse updateProfleImage(Long userId, MultipartFile file);
+    void changePassword(Long customerId, ChangePasswordRequest request);
 }

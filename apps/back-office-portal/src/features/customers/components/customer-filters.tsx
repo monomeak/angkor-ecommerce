@@ -21,6 +21,12 @@ type CustomerFiltersProps = {
 
 export function CustomerFilters({ params, onChange }: CustomerFiltersProps) {
     const t = useTranslations("Customers");
+    const statusItems = [
+        { value: ALL, label: t("activeAndInactive") },
+        { value: "active", label: t("active") },
+        { value: "inactive", label: t("inactive") },
+        { value: "deleted", label: t("archived") }
+    ];
 
     /*
      * The text input is the one piece of local state on this screen. It has to be: the URL is
@@ -70,6 +76,7 @@ export function CustomerFilters({ params, onChange }: CustomerFiltersProps) {
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="customer-status">{t("status")}</Label>
                     <Select
+                        items={statusItems}
                         value={params.status ?? ALL}
                         onValueChange={(value) =>
                             onChange({ status: value === ALL ? null : (value as CustomerStatus) })
@@ -79,10 +86,11 @@ export function CustomerFilters({ params, onChange }: CustomerFiltersProps) {
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={ALL}>{t("activeAndInactive")}</SelectItem>
-                            <SelectItem value="active">{t("active")}</SelectItem>
-                            <SelectItem value="inactive">{t("inactive")}</SelectItem>
-                            <SelectItem value="deleted">{t("archived")}</SelectItem>
+                            {statusItems.map((item) => (
+                                <SelectItem key={item.value} value={item.value}>
+                                    {item.label}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>

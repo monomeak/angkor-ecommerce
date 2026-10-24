@@ -3,3 +3,8 @@ services:
     ports:
       - "${MINIO_API_HOST_PORT:-9000}:9000"
       - "${MINIO_CONSOLE_HOST_PORT:-9001}:9001"
+
+  jsreport:
+    # Loopback only: Studio and a host-run core-api reach it, the rest of the LAN does not.
+    ports:
+      - "127.0.0.1:${JSREPORT_HOST_PORT:-5480}:5488"

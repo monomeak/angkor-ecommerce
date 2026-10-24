@@ -1,5 +1,6 @@
 package com.angkor.commerce.auth;
 
+import com.angkor.commerce.auth.dto.request.ChangePasswordRequest;
 import com.angkor.commerce.auth.dto.request.CustomerLoginRequest;
 import com.angkor.commerce.auth.dto.request.RegisterCustomerRequest;
 import com.angkor.commerce.auth.dto.request.UpdateCustomerProfileRequest;
@@ -114,6 +115,18 @@ public class StorefrontAuthController {
         @RequestPart("image") MultipartFile image
     ) {
         return ResponseEntity.ok(customerAuthService.updateProfleImage(principal.id(), image));
+    }
+
+    /** Signs this browser out too: the cookies are cleared, so the customer logs in with the new password. */
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changeMyPassword(
+        @AuthenticationPrincipal AuthenticatedCustomer principal,
+        @RequestBody @Valid ChangePasswordRequest request,
+        HttpServletResponse response
+    ) {
+        customerAuthService.changePassword(principal.id(), request);
+        authCookieService.clearAuthCookies(response, ACCESS_COOKIE, REFRESH_COOKIE);
+        return ResponseEntity.noContent().build();
     }
 
     private void setAuthCookies(HttpServletResponse response, CustomerLoginResultResponse result) {

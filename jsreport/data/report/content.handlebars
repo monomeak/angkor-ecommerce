@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{title}}</title>
+  <style>{#asset /shared/styles.css @encoding=utf8}</style>
+</head>
+<body>
+  <div class="head">
+    <div>
+      <p class="doc-title">{{title}}</p>
+      <div class="meta">{{formatDate startDate}} – {{formatDate endDate}} · paid invoices only · {{currency}}</div>
+    </div>
+    <div class="brand">
+      <p class="brand-name">Angkor Commerce</p>
+      <p class="brand-sub">Generated {{formatDateTime generatedAt}}</p>
+    </div>
+  </div>
+
+  {{!-- Driven by columns[] alone, exactly like ReportTable: this template never names a report. --}}
+  <table>
+    <thead>
+      <tr>
+        {{#each columns}}
+        <th class="{{lower align}}">{{label}}</th>
+        {{/each}}
+      </tr>
+    </thead>
+    <tbody>
+      {{#each rows as |row|}}
+      <tr>
+        {{#each @root.columns as |col|}}
+        <td class="{{lower col.align}}">{{cell row col @root.currency}}</td>
+        {{/each}}
+      </tr>
+      {{/each}}
+      <tr class="totals-row">
+        {{#each columns as |col|}}
+        <td class="{{lower col.align}}">{{totalCell @root.totals col @index @root.currency}}</td>
+        {{/each}}
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

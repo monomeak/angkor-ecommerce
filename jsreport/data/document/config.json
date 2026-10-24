@@ -1,0 +1,12 @@
+{
+    "name": "document",
+    "shortid": "document",
+    "engine": "handlebars",
+    "recipe": "chrome-pdf",
+    "chrome": {
+        "printBackground": true,
+        "preferCSSPageSize": true
+    },
+    "_id": "template-document",
+    "$entitySet": "templates"
+}

@@ -34,13 +34,13 @@ export const STATUS_STYLES: Record<InvoiceDisplayStatus, string> = {
     CANCELLED: "bg-slate-100 text-slate-600 dark:bg-slate-500/10 dark:text-slate-400"
 };
 
-/** The wallet gateway reports OTHER — paying from a stored balance uses no payment instrument. */
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
     CASH: "Cash",
     BANK_TRANSFER: "Bank transfer",
     QR_CODE: "KHQR",
     CARD: "Card",
-    OTHER: "Wallet balance"
+    WALLET: "Wallet balance",
+    OTHER: "Other"
 };
 
 /** The statuses the filter offers — OVERDUE is excluded because the API cannot filter on it. */

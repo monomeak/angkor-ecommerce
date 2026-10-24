@@ -153,6 +153,13 @@ export function CategoryFormDialog({ open, onOpenChange, categories, category }:
                                 name="parentId"
                                 render={({ field }) => (
                                     <Select
+                                        items={[
+                                            { value: NO_PARENT, label: t("noParent") },
+                                            ...parentOptions.map((option) => ({
+                                                value: String(option.id),
+                                                label: option.label
+                                            }))
+                                        ]}
                                         value={field.value ? String(field.value) : NO_PARENT}
                                         onValueChange={(value) =>
                                             field.onChange(value === NO_PARENT ? null : Number(value))

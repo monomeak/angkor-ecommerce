@@ -1,82 +1,84 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import { StatusByMonthChart } from "../components/status-by-month-chart";
-import { TopCustomersTable } from "../components/top-customers-table";
-import { useStatusByMonth } from "../hooks/use-status-by-month";
-import { useTopCustomers } from "../hooks/use-top-customers";
-import { ExportCsvButton } from "@/src/shared/components/export-csv-button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ApiError } from "@/lib/api-client";
+import { formatDate } from "@/lib/formatters";
+import { ReportTable } from "../components/report-table";
+import { ReportToolbar } from "../components/report-toolbar";
+import { useReport } from "../hooks/use-report";
+import { useReportParams } from "../hooks/use-report-params";
 
 export function ReportsView() {
-  const { data: statusByMonth, isLoading: statusLoading } = useStatusByMonth();
-  const { data: topCustomers, isLoading: customersLoading } = useTopCustomers();
-  const statusCsvRows = statusByMonth.map((m) => [
-    m.month,
-    m.paid.toFixed(2),
-    m.pending.toFixed(2),
-    m.overdue.toFixed(2),
-    m.draft.toFixed(2),
-  ]);
+    const t = useTranslations("Reports");
+    const { params, setParams } = useReportParams();
+    const { data: report, isPending, isError, error, isFetching, refetch } = useReport(params);
 
-  const topCustomersCsvRows = topCustomers.map((c) => [
-    c.fullName,
-    c.email,
-    c.company,
-    c.invoiceCount,
-    c.totalRevenue.toFixed(2),
-  ]);
-  const monthlyReportHeaders = ["Month", "Paid", "Pending", "Overdue", "Draft"];
-  const topCustomerHeaders = [
-    "Name",
-    "Email",
-    "Company",
-    "Invoice",
-    "Total revenue",
-  ];
+    if (isError) {
+        const isForbidden = error instanceof ApiError && (error.status === 401 || error.status === 403);
 
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base font-semibold">
-            Invoice status by month
-          </CardTitle>
+        return (
+            <div className="space-y-3">
+                <p className="text-sm text-destructive">{isForbidden ? t("forbidden") : t("error")}</p>
+                <Button variant="outline" disabled={isFetching} onClick={() => void refetch()}>
+                    {isFetching ? t("loading") : t("retry")}
+                </Button>
+            </div>
+        );
+    }
 
-          <ExportCsvButton
-            filename="invoice-status-by-month.csv"
-            headers={monthlyReportHeaders}
-            rows={statusCsvRows}
-            disabled={statusLoading}
-          ></ExportCsvButton>
-        </CardHeader>
+    return (
+        <div className="space-y-6">
+            <ReportToolbar params={params} report={report} onChange={setParams} />
 
-        <CardContent>
-          <StatusByMonthChart
-            data={statusByMonth}
-            isLoading={statusLoading}
-          ></StatusByMonthChart>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base font-semibold">
-            Top customers by revenue
-          </CardTitle>
-          <ExportCsvButton
-            filename="top-customers.csv"
-            headers={topCustomerHeaders}
-            rows={topCustomersCsvRows}
-            disabled={customersLoading}
-          ></ExportCsvButton>
-        </CardHeader>
-        <CardContent className="p-0">
-          <TopCustomersTable
-            customers={topCustomers}
-            isLoading={customersLoading}
-          />
-        </CardContent>
-      </Card>
-    </div>
-  );
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-base font-semibold">
+                        {report ? report.title : t(`type.${params.type}`)}
+                    </CardTitle>
+                    {report && (
+                        <p className="text-sm text-muted-foreground">
+                            {t("subtitle", {
+                                start: formatDate(report.startDate),
+                                end: formatDate(report.endDate),
+                                currency: report.currency
+                            })}
+                        </p>
+                    )}
+                </CardHeader>
+
+                <CardContent className="p-0">
+                    {isPending ? (
+                        <ReportSkeleton />
+                    ) : (
+                        <ReportTable
+                            report={report}
+                            /*
+                             * Naming the resolved range matters: "no data yet" reads like the app
+                             * is broken, when the honest answer is that nothing was paid in the
+                             * months the reader happens to be looking at.
+                             */
+                            emptyMessage={t("empty", {
+                                start: formatDate(report.startDate),
+                                end: formatDate(report.endDate)
+                            })}
+                        />
+                    )}
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+/** Mirrors the table's shape so the card doesn't resize when the numbers land. */
+function ReportSkeleton() {
+    return (
+        <div className="space-y-3 px-6 py-4">
+            {Array.from({ length: 6 }).map((_, index) => (
+                <Skeleton key={index} className="h-9 w-full" />
+            ))}
+        </div>
+    );
 }

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
@@ -15,15 +17,28 @@ import { safeRedirectPath } from "../lib/redirect";
 
 type LoginFormProps = {
     readonly next?: string;
+    readonly passwordChanged?: boolean;
 };
 
-export function LoginForm({ next }: LoginFormProps) {
+export function LoginForm({ next, passwordChanged = false }: LoginFormProps) {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const login = useLogin();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    /*
+     * The cookies are already gone, but the cache still holds the old customer. Reset here rather
+     * than on the account page: dropping the session there lets RequireCustomer redirect to
+     * /login?next=… first and lose this notice. Resetting refetches /me, so it settles on null.
+     */
+    useEffect(() => {
+        if (passwordChanged) {
+            void queryClient.resetQueries();
+        }
+    }, [passwordChanged, queryClient]);
 
     function handleSubmit(event: FormEvent) {
         event.preventDefault();
@@ -37,7 +52,8 @@ export function LoginForm({ next }: LoginFormProps) {
 
         setError(null);
         login.mutate(result.data, {
-            onSuccess: () => {
+            onSuccess: (customer) => {
+                toast.success(`Welcome back, ${customer.firstName}!`);
                 router.replace(safeRedirectPath(next));
             },
             onError: (cause) => {
@@ -57,6 +73,15 @@ export function LoginForm({ next }: LoginFormProps) {
                         Log in now to explore all the features and benefits of our platform and see what&apos;s new.
                     </p>
                 </div>
+
+                {passwordChanged && (
+                    <p
+                        role="status"
+                        className="rounded-md border border-emerald-600/30 bg-emerald-600/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400"
+                    >
+                        Your password was changed. Log in again with your new password.
+                    </p>
+                )}
 
                 <div className="flex flex-col gap-4">
                     <AuthField

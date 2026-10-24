@@ -72,6 +72,10 @@ public class Invoice extends BaseEntity {
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
+    /** When the balance reached zero. Reports run on this, not issueDate — see V11. */
+    @Column(name = "paid_at")
+    private Instant paidAt;
+
     // ── Money ──────────────────────────────────────────────
 
     @Column(nullable = false, precision = 19, scale = 4)

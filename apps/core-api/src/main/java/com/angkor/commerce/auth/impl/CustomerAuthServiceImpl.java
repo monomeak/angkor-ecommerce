@@ -3,6 +3,7 @@ package com.angkor.commerce.auth.impl;
 import com.angkor.commerce.auth.CustomerAuthService;
 import com.angkor.commerce.auth.CustomerRefreshToken;
 import com.angkor.commerce.auth.CustomerRefreshTokenRepository;
+import com.angkor.commerce.auth.dto.request.ChangePasswordRequest;
 import com.angkor.commerce.auth.dto.request.CustomerLoginRequest;
 import com.angkor.commerce.auth.dto.request.RegisterCustomerRequest;
 import com.angkor.commerce.auth.dto.request.UpdateCustomerProfileRequest;
@@ -127,6 +128,37 @@ public class CustomerAuthServiceImpl implements CustomerAuthService {
             .orElseThrow(() -> ResourceNotFoundException.of("Customer", email));
 
         return toCurrentCustomerResponse(customer);
+    }
+
+    /**
+     * Revokes every refresh token the customer holds, this browser's included: every session,
+     * here and on other devices, has to sign in again with the new password.
+     */
+    @Override
+    @Transactional
+    public void changePassword(Long customerId, ChangePasswordRequest request) {
+        Customer customer = customerRepository
+            .findById(customerId)
+            .orElseThrow(() -> ResourceNotFoundException.of("Customer", customerId));
+
+        // 400 on the field, not 401: the session is fine, and a 401 would send the client
+        // into its refresh-and-retry path for what is just a typo.
+        if (!passwordEncoder.matches(request.currentPassword(), customer.getPasswordHash())) {
+            throw new ValidationException(
+                "Current password is incorrect",
+                Map.of("currentPassword", "Current password is incorrect.")
+            );
+        }
+        if (passwordEncoder.matches(request.newPassword(), customer.getPasswordHash())) {
+            throw new ValidationException(
+                "New password must be different",
+                Map.of("newPassword", "New password must be different from the current one.")
+            );
+        }
+
+        customer.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        customerRepository.save(customer);
+        customerRefreshTokenRepository.revokeAllForCustomer(customer.getId());
     }
 
     private CustomerLoginResultResponse issueTokens(Customer customer) {

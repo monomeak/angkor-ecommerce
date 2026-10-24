@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
@@ -55,7 +56,10 @@ export function SignupForm({ next }: SignupFormProps) {
         password: result.data.password,
       },
       {
-        onSuccess: () => {
+        onSuccess: (customer) => {
+          toast.success(`Welcome to Angkor Commerce, ${customer.firstName}!`, {
+            description: "Your account is ready and you're signed in.",
+          });
           router.replace(safeRedirectPath(next));
         },
         onError: (cause) => {

@@ -1,10 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Printer } from "lucide-react";
+import { FileText, Loader2, Printer } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { ApiError } from "@/lib/api-client";
 import { formatDate, formatMoney, formatPercent } from "@/lib/formatters";
 import { InvoiceStatusBadge } from "./invoice-status-badge";
+import { useInvoicePdf } from "../hooks/use-invoice-pdf";
 import { PAYMENT_METHOD_LABELS } from "../lib/invoice-display";
 import type { Invoice } from "../types/invoice";
 
@@ -16,6 +19,13 @@ import type { Invoice } from "../types/invoice";
 export function InvoiceReceipt({ invoice }: { readonly invoice: Invoice }) {
     const t = useTranslations("Invoices");
     const money = (amount: number) => formatMoney(amount, invoice.currency);
+    const pdf = useInvoicePdf();
+
+    const handlePdf = () => {
+        pdf.mutate(invoice, {
+            onError: (error) => toast.error(error instanceof ApiError ? error.displayMessage : t("pdfError"))
+        });
+    };
 
     const statusLabels: Record<string, string> = {
         ISSUED: t("status_ISSUED"),
@@ -27,7 +37,11 @@ export function InvoiceReceipt({ invoice }: { readonly invoice: Invoice }) {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex justify-end print:hidden">
+            <div className="flex justify-end gap-2 print:hidden">
+                <Button variant="outline" size="sm" onClick={handlePdf} disabled={pdf.isPending}>
+                    {pdf.isPending ? <Loader2 className="size-4 animate-spin" /> : <FileText className="size-4" />}
+                    {pdf.isPending ? t("pdfPending") : t("downloadPdf")}
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => window.print()}>
                     <Printer className="size-4" />
                     {t("print")}

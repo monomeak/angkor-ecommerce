@@ -1,0 +1,59 @@
+{
+  "id": 8,
+  "invoiceNumber": "INV-2026-000008",
+  "invoiceStatus": "PAID",
+  "orderId": 13,
+  "customer": {
+    "id": 4,
+    "firstName": "SOKMEAK",
+    "lastName": "SAREN",
+    "companyName": null,
+    "email": "sokmeak.saren@gmail.com",
+    "phone": "017546798"
+  },
+  "items": [
+    {
+      "id": 11,
+      "productId": 27,
+      "title": "Kids' Elastic Waist Denim Jeans — 98cm",
+      "sku": "KJEAN-BLU-98",
+      "category": "clothing",
+      "price": 14,
+      "quantity": 1,
+      "total": 14,
+      "discountPercentage": 0,
+      "discountedTotal": 14
+    }
+  ],
+  "payments": [
+    {
+      "id": 8,
+      "amount": 14,
+      "paymentMethod": "WALLET",
+      "paymentMethodLabel": "Wallet balance",
+      "paymentStatus": "COMPLETED",
+      "source": "GATEWAY",
+      "paymentDate": "2026-09-05",
+      "referenceNumber": "WALLET-27"
+    }
+  ],
+  "issueDate": "2026-09-05",
+  "dueDate": "2026-09-05",
+  "subtotal": 14,
+  "discountPercentage": 0,
+  "discountAmount": 0,
+  "taxPercentage": 0,
+  "taxAmount": 0,
+  "total": 14,
+  "paidAmount": 14,
+  "balance": 0,
+  "currency": "USD",
+  "totalItems": 1,
+  "totalQuantity": 1,
+  "notes": null,
+  "issuedAt": "2026-09-05T03:36:47.790798Z",
+  "cancelledAt": null,
+  "cancellationReason": null,
+  "createdAt": "2026-09-05T03:36:47.792752Z",
+  "updatedAt": "2026-09-05T03:36:47.758372Z"
+}

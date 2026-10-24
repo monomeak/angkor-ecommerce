@@ -1,11 +1,13 @@
 "use client";
 
-import { Printer } from "lucide-react";
+import { FileText, Loader2, Printer } from "lucide-react";
 
 import { useAppConfig } from "@/components/providers/app-config-provider";
 import { Button } from "@/components/ui/button";
+import { ApiError } from "@/lib/api-client";
 import { formatDate } from "@/lib/date";
 import { formatPrice } from "@/src/features/products/lib/pricing";
+import { useInvoicePdf } from "../hooks/use-invoice-pdf";
 import { INVOICE_STATUS_LABEL, PAYMENT_METHOD_LABEL } from "../lib/invoice-helpers";
 import type { Invoice } from "../types/invoice";
 
@@ -16,15 +18,32 @@ import type { Invoice } from "../types/invoice";
 export function OrderReceipt({ invoice }: { readonly invoice: Invoice }) {
     const { locale, timezone } = useAppConfig();
     const money = (amount: number) => formatPrice(amount, invoice.currency, locale);
+    const pdf = useInvoicePdf();
 
     return (
         <div className="flex flex-col gap-3">
-            <div className="flex justify-end print:hidden">
+            <div className="flex flex-wrap justify-end gap-2 print:hidden">
+                {/* Disabled while in flight: a render takes a few hundred ms, and a double-click renders twice. */}
+                <Button variant="outline" size="sm" onClick={() => pdf.mutate(invoice)} disabled={pdf.isPending}>
+                    {pdf.isPending ? (
+                        <Loader2 data-icon="inline-start" className="size-4 animate-spin" />
+                    ) : (
+                        <FileText data-icon="inline-start" className="size-4" />
+                    )}
+                    {pdf.isPending ? "Preparing PDF…" : "Download PDF"}
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => window.print()}>
                     <Printer data-icon="inline-start" className="size-4" />
                     Print receipt
                 </Button>
             </div>
+            {pdf.isError && (
+                <p className="text-right text-sm text-destructive print:hidden">
+                    {pdf.error instanceof ApiError
+                        ? pdf.error.displayMessage
+                        : "We couldn't generate the PDF. Please try again."}
+                </p>
+            )}
 
             <div data-print-region className="rounded-2xl border bg-card p-6">
                 <div className="flex flex-wrap items-start justify-between gap-3 border-b pb-4">

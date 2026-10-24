@@ -1,4 +1,4 @@
-import { ApiError, apiFetch, parseResponse } from "@/lib/api-client";
+import { ApiError, apiFetch, apiFetchFile, parseResponse, type DownloadedFile } from "@/lib/api-client";
 import { mapInvoice } from "../mappers/invoice.mapper";
 import { invoiceDtoSchema } from "../schemas/invoice-api.schema";
 import type { Invoice } from "../types/invoice";
@@ -20,4 +20,9 @@ export async function fetchOrderInvoice(apiBaseUrl: string, orderId: number): Pr
         }
         throw error;
     }
+}
+
+/** Scoped by the session server-side: another customer's invoice id is a 404, not their PDF. */
+export function fetchInvoicePdf(apiBaseUrl: string, invoiceId: number): Promise<DownloadedFile> {
+    return apiFetchFile(apiBaseUrl, `/storefront/invoices/${invoiceId}/pdf`, "application/pdf");
 }

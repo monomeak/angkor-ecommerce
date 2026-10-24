@@ -1,0 +1,12 @@
+{
+    "name": "report",
+    "shortid": "report",
+    "engine": "handlebars",
+    "recipe": "chrome-pdf",
+    "chrome": {
+        "printBackground": true,
+        "preferCSSPageSize": true
+    },
+    "_id": "template-report",
+    "$entitySet": "templates"
+}

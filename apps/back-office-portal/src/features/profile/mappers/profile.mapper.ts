@@ -1,29 +1,29 @@
-import type { ValidatedProfile } from "../schemas/profile.schema";
-import type { UserProfile } from "../types/profile";
+import type { CurrentUser } from "@/src/features/auth/types/auth";
 
-export function mapProfileResponse(profile: ValidatedProfile): UserProfile {
-  return {
-    id: profile.id,
-    firstName: profile.firstName,
-    lastName: profile.lastName,
-    email: profile.email,
-    phone: profile.phone,
-    username: profile.username,
-    image: profile.image,
-    gender: profile.gender,
-    birthDate: profile.birthDate,
-    role: profile.role,
-    company: {
-      name: profile.company.name,
-      department: profile.company.department,
-      title: profile.company.title,
-    },
-    address: {
-      address: profile.address.address,
-      city: profile.address.city,
-      state: profile.address.state,
-      postalCode: profile.address.postalCode,
-      country: profile.address.country,
-    },
-  };
+import type { ProfileFormValues } from "../schemas/profile.schema";
+import type { UpdateProfilePayload } from "../types/profile";
+
+export function toProfileFormValues(user: CurrentUser): ProfileFormValues {
+    return {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone ?? ""
+    };
+}
+
+/** Sends only what changed, so an untouched email never trips the uniqueness check. */
+export function toUpdateProfilePayload(
+    values: ProfileFormValues,
+    dirtyFields: Partial<Record<keyof ProfileFormValues, boolean>>
+): UpdateProfilePayload {
+    const payload: UpdateProfilePayload = {};
+
+    for (const key of Object.keys(values) as (keyof ProfileFormValues)[]) {
+        if (dirtyFields[key]) {
+            payload[key] = values[key];
+        }
+    }
+
+    return payload;
 }

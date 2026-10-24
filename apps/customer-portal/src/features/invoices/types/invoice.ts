@@ -6,7 +6,7 @@
  * line with a null `productId`.
  */
 export type InvoiceStatus = "ISSUED" | "PARTIALLY_PAID" | "PAID" | "CANCELLED";
-export type PaymentMethod = "CASH" | "BANK_TRANSFER" | "QR_CODE" | "CARD" | "OTHER";
+export type PaymentMethod = "CASH" | "BANK_TRANSFER" | "QR_CODE" | "CARD" | "WALLET" | "OTHER";
 export type PaymentStatus = "COMPLETED" | "VOIDED" | "REFUNDED";
 
 export type InvoiceItem = {

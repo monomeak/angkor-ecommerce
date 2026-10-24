@@ -1,0 +1,7 @@
+{
+    "name": "helpers.js",
+    "shortid": "shared-helpers",
+    "sharedHelpersScope": "global",
+    "_id": "asset-shared-helpers",
+    "$entitySet": "assets"
+}

@@ -32,7 +32,10 @@ export function ProductPagination({ page, limit, total, onPageChange, onLimitCha
                     <Label htmlFor="page-size" className="text-muted-foreground text-sm whitespace-nowrap">
                         {t("rowsPerPage")}
                     </Label>
-                    <Select value={String(limit)} onValueChange={(value) => onLimitChange(Number(value))}>
+                    <Select
+                        items={PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: String(size) }))}
+                        value={String(limit)}
+                        onValueChange={(value) => onLimitChange(Number(value))}>
                         <SelectTrigger id="page-size" className="w-20">
                             <SelectValue />
                         </SelectTrigger>

@@ -12,6 +12,7 @@ import com.angkor.commerce.order.Order;
 import com.angkor.commerce.order.OrderRepository;
 import com.angkor.commerce.order.OrderStatus;
 import com.angkor.commerce.payment.Payment;
+import com.angkor.commerce.payment.PaymentMethod;
 import com.angkor.commerce.payment.PaymentRepository;
 import com.angkor.commerce.payment.PaymentSource;
 import com.angkor.commerce.payment.PaymentStatus;
@@ -59,6 +60,11 @@ public class InvoiceRecoveryServiceImpl implements InvoiceRecoveryService {
                 "Recorded amount %s does not match the order total %s. " +
                     "Investigate before recovering.".formatted(request.amountReceived(), order.getTotal())
             );
+        }
+
+        // A wallet payment is a ledger debit; staff typing one in would claim money the ledger never moved.
+        if (request.paymentMethod() == PaymentMethod.WALLET) {
+            throw new ValidationException("WALLET payments come from the wallet ledger and cannot be recorded manually");
         }
 
         //== recreate Issued Invoice from order

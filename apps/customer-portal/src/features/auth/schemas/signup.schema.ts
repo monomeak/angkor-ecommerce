@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** Mirrors core-api's @StrongPassword so the user sees the rule before the API rejects it. */
-const passwordSchema = z
+export const passwordSchema = z
     .string()
     .min(8, "Password must be at least 8 characters.")
     .max(64, "Password must be at most 64 characters.")

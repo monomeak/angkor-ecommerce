@@ -176,6 +176,20 @@
   }
 }
 /*
+ * Sonner's phone layout gives the toaster `width: 100%` *and* left/right offsets, so it runs off
+ * the right edge and the toast sits off-centre. Let the offsets size it instead. The selectors
+ * carry one more attribute than sonner's, because its stylesheet is injected after this one.
+ */
+@media (max-width: 600px) {
+  [data-sonner-toaster][data-x-position] {
+    width: auto;
+  }
+  [data-sonner-toaster][data-x-position] [data-sonner-toast] {
+    width: 100%;
+  }
+}
+
+/*
  * Printing a receipt: everything but the marked region is hidden rather than the region
  * being lifted into its own window, so the printed page keeps the app's own styling.
  * `visibility` rather than `display` — collapsing ancestors would take the region with them.

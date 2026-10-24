@@ -50,12 +50,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public DashboardOverviewResponse getOverview(int months) {
-        return new DashboardOverviewResponse(
-            summary(),
-            revenueByMonth(months),
-            salesByCategory(),
-            recentInvoices()
-        );
+        return new DashboardOverviewResponse(summary(), revenueByMonth(months), salesByCategory(), recentInvoices());
     }
 
     private DashboardSummaryResponse summary() {
@@ -80,10 +75,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         Map<YearMonth, BigDecimal> totals = new HashMap<>();
         for (Object[] row : paymentRepository.sumCompletedPaymentsByMonth(start.atDay(1))) {
-            totals.put(
-                YearMonth.of(((Number) row[0]).intValue(), ((Number) row[1]).intValue()),
-                toAmount(row[2])
-            );
+            totals.put(YearMonth.of(((Number) row[0]).intValue(), ((Number) row[1]).intValue()), toAmount(row[2]));
         }
 
         List<RevenuePointResponse> series = new ArrayList<>(months);
