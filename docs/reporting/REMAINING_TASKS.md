@@ -81,6 +81,26 @@ after the templates exist.
 counterpart of `formatCell`/`formatTotalCell` — keep them in step or the PDF and the screen
 will disagree.
 
+- [ ] **Generate an invoice PDF once, then serve it from MinIO.** Not started. What the
+      first look found:
+      - **Private bucket, not the media one.** `minio-init` runs `mc anonymous set download`
+        on `angkor-commerce-media`, so anything in it is public by URL. Invoice PDFs carry
+        names, emails and phones → a separate bucket (e.g. `angkor-commerce-documents`) with
+        no anonymous policy; add it to the `angkor-app-rw` policy in `minio-init`, to
+        `MinioProperties`, and to `MinioBucketInitializer`.
+      - **Key by content, not by id.** `invoices/{id}/{sha256(payload JSON + template version)}.pdf`.
+        Any change — payment voided, cancellation, customer renamed — yields a new key, so
+        there is no invalidation logic. A `template-version` property is bumped when the
+        jsreport templates change. Old keys are orphaned; a lifecycle rule can sweep them.
+      - **Only cache what time can't change.** Cache when `balance <= 0` or `CANCELLED`;
+        render live otherwise — the template derives OVERDUE from today's date.
+      - **Best-effort.** A MinIO miss or failure falls back to rendering; a failed put still
+        returns the PDF. An `InvoicePdfService` in `invoice/` sits between both controllers
+        and `JsReportRenderer`.
+      - **Reports are not cached** — `generatedAt` and rolling periods make each render unique.
+      - Tests: `@MockitoBean` the cache in `DocumentPdfEndpointTest`; unit-test hit / miss /
+        unpaid-skips-cache / cache-down-falls-back.
+
 ---
 
 ## 12–13 — customer-scoped reports
@@ -112,6 +132,13 @@ grouped rather than dropped.
 
 ## Loose ends found along the way
 
+- [ ] **Shared frontend package for the duplicated client code.** The PDF work added
+      `apiFetchFile` + `DownloadedFile` to *both* `lib/api-client.ts` copies, and `saveFile`
+      to both portals (`back-office-portal/src/shared/lib/download-file.ts`,
+      `customer-portal/lib/download-file.ts`). Planned fix: a real pnpm workspace package
+      (e.g. `packages/api-client`) taking the refresh path as config — not copying one
+      portal's file into the other. Until then, change both copies together.
+
 - [x] **`ApiApplicationTests.contextLoads` fails on the default profile.** It has no
       `@ActiveProfiles("dev")`, so `JwtTokenProvider`'s constructor throws on the missing JWT
       secret. Pre-existing, unrelated to reporting, and a one-line fix —
@@ -137,8 +164,7 @@ grouped rather than dropped.
 - [ ] Does the customer statement include cancelled orders, or paid only? Paid-only matches
       the admin report, but a customer looking for "what happened to that order" may expect
       the cancellation.
-- [ ] Cache rendered PDFs in MinIO? A paid invoice never changes, so re-rendering is
-      repeatable waste — but only worth it once downloads get frequent.
+- [x] ~~Cache rendered PDFs in MinIO?~~ Decided yes — now a task under "jsreport and PDFs".
 - [ ] A per-customer report. The old `/reports/sales` had a top-customers list; the new API
       has no per-customer grain, which is why the AI insights prompt lost its customer-
       concentration commentary. Adding `/reports/top-customers` would restore it and cost
