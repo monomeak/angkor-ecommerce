@@ -38,3 +38,9 @@ export type UpdateProfilePayload = {
     phone?: string;
     image?: string;
 };
+
+/** Body of PUT /storefront/auth/me/password. */
+export interface ChangePasswordPayload {
+    currentPassword: string;
+    newPassword: string;
+}
