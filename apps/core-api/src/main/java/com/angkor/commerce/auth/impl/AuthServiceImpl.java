@@ -10,6 +10,7 @@ import com.angkor.commerce.auth.dto.response.CurrentUserResponse;
 import com.angkor.commerce.auth.dto.response.LoginResultResponse;
 import com.angkor.commerce.auth.shared.JwtProperties;
 import com.angkor.commerce.auth.shared.RefreshTokenCrypto;
+import com.angkor.commerce.common.enums.RecordStatus;
 import com.angkor.commerce.common.exception.ResourceNotFoundException;
 import com.angkor.commerce.common.exception.ValidationException;
 import com.angkor.commerce.common.storage.ImagePurpose;
@@ -76,6 +77,11 @@ public class AuthServiceImpl implements AuthService {
 
         if (!storedHashToken.isValid()) {
             throw new BadCredentialsException("Invalid or expired refresh token");
+        }
+        // Login is gated by CustomUserDetailsService, refresh is not: without this a deactivated
+        // account keeps rotating tokens forever and deactivation never takes effect.
+        if (storedHashToken.getUser().getStatus() != RecordStatus.ACTIVE) {
+            throw new BadCredentialsException("Account is not active");
         }
 
         // Rotate: revoke the presented token and issue a branch new pair.

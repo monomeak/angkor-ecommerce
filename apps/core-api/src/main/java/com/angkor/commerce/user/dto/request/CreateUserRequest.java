@@ -17,7 +17,7 @@ public record CreateUserRequest(
     String firstName,
 
     @NotBlank(message = "Last name is required")
-    @Size(max = 100, message = "First name must be at most 100 characters")
+    @Size(max = 100, message = "Last name must be at most 100 characters")
     String lastName,
 
     @NotBlank(message = "Username is required")

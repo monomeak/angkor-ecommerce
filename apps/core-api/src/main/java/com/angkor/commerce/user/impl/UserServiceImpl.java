@@ -78,7 +78,10 @@ public class UserServiceImpl implements UserService {
         }
 
         if (userRepository.existsByEmail(request.email())) {
-            throw new ValidationException("Email is already taken.");
+            throw new ValidationException(
+                "Email is already taken.",
+                Map.of("email", "This email is already in use.")
+            );
         }
         // instance new user objective and set the values
 
