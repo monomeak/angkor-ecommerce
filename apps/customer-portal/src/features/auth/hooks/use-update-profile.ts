@@ -32,7 +32,7 @@ export function useUploadProfileImage() {
     });
 }
 
-/** Touches no cache: the customer record doesn't change, only the cookies do. */
+/** Leaves the cache alone: the caller navigates to /login first, which resets it. */
 export function useChangePassword() {
     const { apiBaseUrl } = useAppConfig();
 

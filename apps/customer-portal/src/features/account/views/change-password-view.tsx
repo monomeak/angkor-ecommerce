@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,22 +25,20 @@ const FIELDS: { id: ChangePasswordField; label: string; autoComplete: string }[]
 const EMPTY = { currentPassword: "", newPassword: "", confirmPassword: "" };
 
 export function ChangePasswordView() {
+  const router = useRouter();
   const changePassword = useChangePassword();
   const [values, setValues] = useState(EMPTY);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   function updateField(field: ChangePasswordField, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
-    setSuccess(false);
   }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setFormError(null);
-    setSuccess(false);
 
     const result = changePasswordSchema.safeParse(values);
     if (!result.success) {
@@ -58,11 +57,8 @@ export function ChangePasswordView() {
         newPassword: result.data.newPassword,
       },
       {
-        onSuccess: () => {
-          setValues(EMPTY);
-          setFieldErrors({});
-          setSuccess(true);
-        },
+        // core-api has cleared the cookies; the login page drops the cached session.
+        onSuccess: () => router.replace("/login?reason=password-changed&next=/account"),
         onError: (error) => {
           // core-api names the field it rejected (a wrong current password, a reused one).
           if (error instanceof ApiError && error.fieldErrors) {
@@ -80,7 +76,7 @@ export function ChangePasswordView() {
   return (
     <AccountContent
       title="Change password"
-      description="Update the password used to sign in to your account. Other devices will be signed out."
+      description="Update the password used to sign in to your account. You'll be signed out everywhere and asked to log in again."
     >
       <form onSubmit={handleSubmit} noValidate className="flex max-w-sm flex-col gap-4">
         {FIELDS.map((field) => {
@@ -108,11 +104,6 @@ export function ChangePasswordView() {
         })}
 
         {formError && <p className="text-sm text-destructive">{formError}</p>}
-        {success && (
-          <p className="text-sm text-emerald-600" role="status">
-            Password updated. Other devices have been signed out.
-          </p>
-        )}
 
         <Button type="submit" className="w-fit" disabled={changePassword.isPending}>
           {changePassword.isPending ? "Updating…" : "Update password"}

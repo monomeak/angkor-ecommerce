@@ -17,5 +17,5 @@ public interface CustomerAuthService {
     CurrentCustomerResponse getCurrentCustomer(String email);
     CurrentCustomerResponse updateCurrentUser(Long userId, UpdateCustomerProfileRequest request);
     CurrentCustomerResponse updateProfleImage(Long userId, MultipartFile file);
-    CustomerLoginResultResponse changePassword(Long customerId, ChangePasswordRequest request);
+    void changePassword(Long customerId, ChangePasswordRequest request);
 }

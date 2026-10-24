@@ -63,8 +63,8 @@ export async function updateProfileRequest(
 }
 
 /**
- * 204 with fresh cookies: core-api revokes every refresh token the customer holds, then
- * issues a new pair for this browser, so other devices are signed out and this one isn't.
+ * 204 with the auth cookies cleared: core-api revokes every refresh token the customer holds,
+ * this browser's included, so every session signs in again with the new password.
  */
 export async function changePasswordRequest(apiBaseUrl: string, payload: ChangePasswordPayload): Promise<void> {
     await apiFetch<void>(apiBaseUrl, `${AUTH_BASE}/me/password`, {

@@ -12,14 +12,20 @@ type AuthViewProps = {
     readonly mode: AuthMode;
     /** Where to land after auth — set by the account guard's `?next=` redirect. */
     readonly next?: string;
+    /** Arrived from a password change, which signs every session out. */
+    readonly passwordChanged?: boolean;
 };
 
-export function AuthView({ mode, next }: AuthViewProps) {
+export function AuthView({ mode, next, passwordChanged }: AuthViewProps) {
     const { imageSrc, imageAlt } = AUTH_CONFIG[mode];
 
     return (
         <AuthShell imageSrc={imageSrc} imageAlt={imageAlt}>
-            {mode === "login" ? <LoginForm next={next} /> : <SignupForm next={next} />}
+            {mode === "login" ? (
+                <LoginForm next={next} passwordChanged={passwordChanged} />
+            ) : (
+                <SignupForm next={next} />
+            )}
         </AuthShell>
     );
 }

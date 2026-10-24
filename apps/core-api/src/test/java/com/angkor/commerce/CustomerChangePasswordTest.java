@@ -60,16 +60,16 @@ class CustomerChangePasswordTest {
         mockMvc
             .perform(changePassword(OLD_PASSWORD, NEW_PASSWORD))
             .andExpect(status().isNoContent())
-            // This browser stays signed in on a fresh pair; its old refresh token was revoked.
-            .andExpect(cookie().exists("accessToken"))
-            .andExpect(cookie().exists("refreshToken"));
+            // This browser is signed out too: both cookies are expired on the response.
+            .andExpect(cookie().maxAge("accessToken", 0))
+            .andExpect(cookie().maxAge("refreshToken", 0));
 
         mockMvc.perform(login(OLD_PASSWORD)).andExpect(status().isUnauthorized());
         mockMvc.perform(login(NEW_PASSWORD)).andExpect(status().isOk());
     }
 
     @Test
-    void otherSessionsAreSignedOut() throws Exception {
+    void everySessionIsSignedOut() throws Exception {
         Cookie oldRefresh = findCookie("refreshToken");
 
         mockMvc.perform(changePassword(OLD_PASSWORD, NEW_PASSWORD)).andExpect(status().isNoContent());

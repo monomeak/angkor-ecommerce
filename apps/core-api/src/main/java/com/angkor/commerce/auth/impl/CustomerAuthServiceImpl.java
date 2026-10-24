@@ -131,12 +131,12 @@ public class CustomerAuthServiceImpl implements CustomerAuthService {
     }
 
     /**
-     * Revokes every refresh token the customer holds, then issues a fresh pair for the caller:
-     * any other signed-in device loses its session on its next refresh, this one stays signed in.
+     * Revokes every refresh token the customer holds, this browser's included: every session,
+     * here and on other devices, has to sign in again with the new password.
      */
     @Override
     @Transactional
-    public CustomerLoginResultResponse changePassword(Long customerId, ChangePasswordRequest request) {
+    public void changePassword(Long customerId, ChangePasswordRequest request) {
         Customer customer = customerRepository
             .findById(customerId)
             .orElseThrow(() -> ResourceNotFoundException.of("Customer", customerId));
@@ -159,8 +159,6 @@ public class CustomerAuthServiceImpl implements CustomerAuthService {
         customer.setPasswordHash(passwordEncoder.encode(request.newPassword()));
         customerRepository.save(customer);
         customerRefreshTokenRepository.revokeAllForCustomer(customer.getId());
-
-        return issueTokens(customer);
     }
 
     private CustomerLoginResultResponse issueTokens(Customer customer) {

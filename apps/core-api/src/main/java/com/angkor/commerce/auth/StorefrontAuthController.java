@@ -117,15 +117,15 @@ public class StorefrontAuthController {
         return ResponseEntity.ok(customerAuthService.updateProfleImage(principal.id(), image));
     }
 
-    /** Re-sets the cookies: the old refresh token was revoked along with every other session's. */
+    /** Signs this browser out too: the cookies are cleared, so the customer logs in with the new password. */
     @PutMapping("/me/password")
     public ResponseEntity<Void> changeMyPassword(
         @AuthenticationPrincipal AuthenticatedCustomer principal,
         @RequestBody @Valid ChangePasswordRequest request,
         HttpServletResponse response
     ) {
-        CustomerLoginResultResponse result = customerAuthService.changePassword(principal.id(), request);
-        setAuthCookies(response, result);
+        customerAuthService.changePassword(principal.id(), request);
+        authCookieService.clearAuthCookies(response, ACCESS_COOKIE, REFRESH_COOKIE);
         return ResponseEntity.noContent().build();
     }
 
