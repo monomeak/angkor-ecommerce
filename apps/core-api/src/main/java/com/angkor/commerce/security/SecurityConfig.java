@@ -34,8 +34,8 @@ public class SecurityConfig {
         ApiConstants.STOREFRONT_AUTH_BASE + "/refresh",
         "/actuator/info",
         "/v3/api-docs/**",
-        "/swagger-ui/**",
-        "/swagger-ui.html"
+        "/scalar",
+        "/scalar/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;

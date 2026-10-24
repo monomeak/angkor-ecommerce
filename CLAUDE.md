@@ -141,7 +141,7 @@ entity, and `dto/request` + `dto/response`. Shared concerns live in `common/`, `
 - Aggregate queries use `JdbcClient` native SQL, not JPA — reporting reads *tables*, which is
   how it aggregates across three modules without importing their entities.
 - Spring Security is the final authorization authority. Frontend role checks are UX only.
-- When adding endpoints, update or verify the OpenAPI output at `/swagger-ui.html`.
+- When adding endpoints, update or verify the OpenAPI output at `/scalar` (Scalar UI over `/v3/api-docs`).
 
 ### Schema
 
