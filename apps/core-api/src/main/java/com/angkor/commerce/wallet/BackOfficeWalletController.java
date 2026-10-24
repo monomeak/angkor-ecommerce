@@ -3,7 +3,7 @@ package com.angkor.commerce.wallet;
 import com.angkor.commerce.common.ApiConstants;
 import com.angkor.commerce.common.dto.PageResponse;
 import com.angkor.commerce.security.JwtAuthenticationFilter.AuthenticatedUser;
-import com.angkor.commerce.security.annotation.IsAdmin;
+import com.angkor.commerce.security.annotation.IsShopUser;
 import com.angkor.commerce.wallet.dto.request.WalletQueryParams;
 import com.angkor.commerce.wallet.dto.request.WalletResponse;
 import com.angkor.commerce.wallet.dto.request.WalletTopUpRequest;
@@ -36,7 +36,7 @@ public class BackOfficeWalletController {
     private final WalletService walletService;
 
     @GetMapping
-    @IsAdmin
+    @IsShopUser
     public ResponseEntity<WalletResponse> getWallet(
         @PathVariable Long customerId,
         @RequestParam(defaultValue = "USD") String currency
@@ -45,7 +45,7 @@ public class BackOfficeWalletController {
     }
 
     @GetMapping("/transactions")
-    @IsAdmin
+    @IsShopUser
     public ResponseEntity<PageResponse<WalletTransactionResponse>> getTransactions(
         @PathVariable Long customerId,
         @RequestParam(defaultValue = "USD") String currency,
@@ -55,7 +55,7 @@ public class BackOfficeWalletController {
     }
 
     @PostMapping("/topup")
-    @PreAuthorize("hasRole('SUPER_ADMIN')") // narrower than @IsAdmin
+    @PreAuthorize("hasRole('SUPER_ADMIN')") // narrower than @IsShopUser
     @Operation(summary = "Credit a customer's wallet")
     public ResponseEntity<WalletTransactionResponse> topUp(
         @AuthenticationPrincipal AuthenticatedUser staff,

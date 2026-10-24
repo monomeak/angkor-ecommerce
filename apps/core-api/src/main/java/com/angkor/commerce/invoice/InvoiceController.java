@@ -9,7 +9,7 @@ import com.angkor.commerce.invoice.dto.request.RecoverInvoiceRequest;
 import com.angkor.commerce.invoice.dto.response.InvoiceResponse;
 import com.angkor.commerce.invoice.dto.response.InvoiceSummaryResponse;
 import com.angkor.commerce.security.JwtAuthenticationFilter.AuthenticatedUser;
-import com.angkor.commerce.security.annotation.IsAdmin;
+import com.angkor.commerce.security.annotation.IsShopUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -38,19 +38,19 @@ public class InvoiceController {
     private final JsReportRenderer renderer;
 
     @GetMapping
-    @IsAdmin
+    @IsShopUser
     public ResponseEntity<PageResponse<InvoiceSummaryResponse>> getInvoices(@Valid InvoiceQueryParams query) {
         return ResponseEntity.ok(invoiceService.getInvoices(query));
     }
 
     @GetMapping("/{invoiceId}")
-    @IsAdmin
+    @IsShopUser
     public ResponseEntity<InvoiceResponse> getInvoice(@PathVariable Long invoiceId) {
         return ResponseEntity.ok(invoiceService.getInvoice(invoiceId));
     }
 
     @GetMapping(value = "/{invoiceId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @IsAdmin
+    @IsShopUser
     @Operation(summary = "The invoice as a PDF")
     public ResponseEntity<byte[]> getInvoicePdf(@PathVariable Long invoiceId) {
         InvoiceResponse invoice = invoiceService.getInvoice(invoiceId);
@@ -58,7 +58,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/recover")
-    @PreAuthorize("hasRole('SUPER_ADMIN')") // narrower than @IsAdmin
+    @PreAuthorize("hasRole('SUPER_ADMIN')") // narrower than @IsShopUser
     @Operation(summary = "Recover an order whose payment succeeded but was not invoiced")
     public ResponseEntity<InvoiceResponse> recover(
         @AuthenticationPrincipal AuthenticatedUser staff,

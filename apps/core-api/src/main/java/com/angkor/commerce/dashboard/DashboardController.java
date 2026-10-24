@@ -2,7 +2,7 @@ package com.angkor.commerce.dashboard;
 
 import com.angkor.commerce.common.ApiConstants;
 import com.angkor.commerce.dashboard.dto.response.DashboardOverviewResponse;
-import com.angkor.commerce.security.annotation.IsAdmin;
+import com.angkor.commerce.security.annotation.IsShopUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping("/overview")
-    @IsAdmin
+    @IsShopUser
     @Operation(summary = "KPIs, revenue by month, units sold per category and the latest invoices")
     public ResponseEntity<DashboardOverviewResponse> getOverview(
         @RequestParam(required = false) Integer months

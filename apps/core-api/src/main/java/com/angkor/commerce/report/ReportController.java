@@ -4,7 +4,7 @@ import com.angkor.commerce.common.ApiConstants;
 import com.angkor.commerce.common.jsreport.JsReportRenderer;
 import com.angkor.commerce.common.jsreport.PdfResponses;
 import com.angkor.commerce.report.dto.response.ReportResponse;
-import com.angkor.commerce.security.annotation.IsAdmin;
+import com.angkor.commerce.security.annotation.IsShopUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Pattern;
@@ -37,7 +37,7 @@ public class ReportController {
     private final JsReportRenderer renderer;
 
     @GetMapping("/invoices")
-    @IsAdmin
+    @IsShopUser
     @Operation(summary = "One row per paid invoice, on a cash basis")
     public ResponseEntity<ReportResponse> invoiceReport(
         @RequestParam(defaultValue = "THIS_MONTH") ReportPeriod period,
@@ -48,7 +48,7 @@ public class ReportController {
     }
 
     @GetMapping("/sales-by-category")
-    @IsAdmin
+    @IsShopUser
     @Operation(summary = "Paid sales grouped by the category snapshotted on each invoice line")
     public ResponseEntity<ReportResponse> salesByCategory(
         @RequestParam(defaultValue = "THIS_MONTH") ReportPeriod period,
@@ -60,7 +60,7 @@ public class ReportController {
     // The /pdf siblings call the same service methods, so the PDF cannot disagree with the screen.
 
     @GetMapping(value = "/invoices/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @IsAdmin
+    @IsShopUser
     @Operation(summary = "The invoice report as a PDF")
     public ResponseEntity<byte[]> invoiceReportPdf(
         @RequestParam(defaultValue = "THIS_MONTH") ReportPeriod period,
@@ -71,7 +71,7 @@ public class ReportController {
     }
 
     @GetMapping(value = "/sales-by-category/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @IsAdmin
+    @IsShopUser
     @Operation(summary = "Sales by category as a PDF")
     public ResponseEntity<byte[]> salesByCategoryPdf(
         @RequestParam(defaultValue = "THIS_MONTH") ReportPeriod period,

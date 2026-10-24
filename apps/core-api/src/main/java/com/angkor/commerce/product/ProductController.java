@@ -12,6 +12,7 @@ import com.angkor.commerce.product.dto.response.ProductImageResponse;
 import com.angkor.commerce.product.dto.response.ProductResponse;
 import com.angkor.commerce.product.dto.response.ProductSummaryResponse;
 import com.angkor.commerce.product.dto.response.ProductVariantResponse;
+import com.angkor.commerce.security.annotation.IsShopUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,7 +22,6 @@ import org.simpleframework.xml.core.Validate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -79,7 +79,7 @@ public class ProductController {
     }
 
     @DeleteMapping(ApiConstants.PATH_ID)
-    @PreAuthorize("hasAnyRole('SHOP_ADMIN', 'SUPER_ADMIN')")
+    @IsShopUser
     @Operation(summary = "Soft delete a product")
     public ResponseEntity<ProductDeleteResponse> deleteProduct(@PathVariable Long id) {
         return ResponseEntity.ok(productService.deleteProduct(id));

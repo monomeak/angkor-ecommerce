@@ -98,9 +98,13 @@ public class SecurityConfig {
                     .requestMatchers("/api/v1/storefront/**")
                     .hasRole("CUSTOMER")
 
-                    // ── STAFF ── (catalogue writes fall here: GET was matched above)
+                    // ── ADMIN ── team management. Must precede the shop-user rule below.
+                    .requestMatchers("/api/v1/users/**")
+                    .hasAnyRole("SHOP_ADMIN", "SUPER_ADMIN")
+
+                    // ── SHOP USER ── any back-office role (catalogue writes fall here: GET was
+                    // matched above). Admin-only actions inside narrow it with @PreAuthorize.
                     .requestMatchers(
-                        "/api/v1/users/**",
                         "/api/v1/customers/**",
                         "/api/v1/products/**",
                         "/api/v1/categories/**",
@@ -111,7 +115,7 @@ public class SecurityConfig {
                         "/api/v1/payment-intents/**",
                         "/api/v1/reports/**"
                     )
-                    .hasAnyRole("SHOP_ADMIN", "SUPER_ADMIN")
+                    .hasAnyRole("STAFF", "SHOP_ADMIN", "SUPER_ADMIN")
 
                     // ── Everything unlisted requires a token ──
                     .anyRequest()

@@ -101,7 +101,7 @@ Auth rules come from [SecurityConfig.java:25-85](../apps/core-api/src/main/java/
 | GET | `` | authenticated only | `ProductQueryParams` (query) | `PageResponse<ProductSummaryResponse>` |
 | GET | `/{id}` | authenticated only | — | `ProductResponse` |
 | PATCH | `/{id}` | authenticated only | `UpdateProductRequest` | `ProductResponse` |
-| DELETE | `/{id}` | `@PreAuthorize` SHOP_ADMIN, SUPER_ADMIN | — | `ProductDeleteResponse` |
+| DELETE | `/{id}` | `@IsShopUser` (STAFF, SHOP_ADMIN, SUPER_ADMIN) | — | `ProductDeleteResponse` |
 | POST | `/{id}/variants` | authenticated only | `CreateProductVariantRequest` | 201 `ProductVariantResponse` |
 | PATCH | `/{id}/variants/{variantId}` | authenticated only | `UpdateProductVariantRequest` | `ProductVariantResponse` |
 | DELETE | `/{id}/variants/{variantId}` | authenticated only | — | 204 |
