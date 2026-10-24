@@ -1,18 +1,27 @@
-import { AppRole } from "../../auth/types/auth";
+import type { AccountStatus, AppRole } from "../../auth/types/auth";
 
-export type TeamMemberStatus = "active" | "invited" | "suspended";
 export interface TeamMember {
-  id: string;
+  id: number;
+  firstName: string;
+  lastName: string;
+  /** Falls back to the username for accounts with no name on file. */
   fullName: string;
+  username: string;
   email: string;
-  avatarUrl?: string;
+  /** Raw MinIO object key — resolve with resolveMediaUrl() before rendering. */
+  image: string | null;
   role: AppRole;
-  status: TeamMemberStatus;
-  joinedAt: string;
+  status: AccountStatus;
+  createdAt: string;
 }
 
-export interface InviteMemberPayload {
+/** Body of POST /users. */
+export interface CreateMemberPayload {
+  firstName: string;
+  lastName: string;
+  username: string;
   email: string;
-  fullName: string;
+  phone?: string;
+  password: string;
   role: AppRole;
 }

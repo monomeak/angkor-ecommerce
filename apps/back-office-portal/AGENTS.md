@@ -58,9 +58,9 @@ Reports is one generic screen over two core-api endpoints, `GET /reports/invoice
 
 The analytics page feeds the AI those same two reports (`lib/to-insights-payload.ts`) — **aggregates only**, no invoice numbers, customer names or phone numbers. The old per-month `paid/pending/overdue/draft` prompt is gone with the mock that invented those statuses; the prompt now covers period totals and category concentration.
 
-Still on mock data: landing page, profile + appearance/privacy settings.
+Still on mock data: landing page, appearance/privacy settings.
 
-Placeholder routes with little/no view wired up: `/team`.
+Team (`/team`) runs on `/users`: list, add (with a generated strong password), role change behind a confirm dialog, and deactivate — which is `PATCH /users/archive/{id}`, a soft delete to INACTIVE, not a removal.
 
 Self-service registration is disabled: core-api's back-office `AuthController` has no `/register`, so `registerRequest()` throws a 501 with an explanation. Staff accounts come from the admin-only `POST /users`.
 
