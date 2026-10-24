@@ -74,6 +74,7 @@ export function InsightsView() {
         <div className="flex items-center gap-2">
           <label htmlFor="insights-period">Target:</label>
           <Select
+            items={PERIOD_LABELS}
             value={period}
             disabled={isStillTyping}
             onValueChange={(value) => {

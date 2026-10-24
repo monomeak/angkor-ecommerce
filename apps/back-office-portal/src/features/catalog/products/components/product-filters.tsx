@@ -28,6 +28,16 @@ export function ProductFilters({ params, onChange }: ProductFiltersProps) {
     // The <Select> works in ids (options carry them) while the URL works in slugs.
     const lookup = useMemo(() => buildCategoryLookup(categories ?? []), [categories]);
     const selectedId = params.categorySlug ? lookup.bySlug.get(params.categorySlug)?.id : undefined;
+    const categoryItems = [
+        { value: ALL, label: t("allCategories") },
+        ...options.map((option) => ({ value: String(option.id), label: option.label }))
+    ];
+    const statusItems = [
+        { value: ALL, label: t("activeAndInactive") },
+        { value: "active", label: t("active") },
+        { value: "inactive", label: t("inactive") },
+        { value: "deleted", label: t("archived") }
+    ];
 
     /*
      * The text input is the one piece of local state on this screen. It has to be: the URL
@@ -78,6 +88,7 @@ export function ProductFilters({ params, onChange }: ProductFiltersProps) {
             <div className="space-y-2 md:w-56">
                 <Label htmlFor="product-category">{t("category")}</Label>
                 <Select
+                    items={categoryItems}
                     value={selectedId ? String(selectedId) : ALL}
                     onValueChange={(value) =>
                         onChange({
@@ -89,10 +100,9 @@ export function ProductFilters({ params, onChange }: ProductFiltersProps) {
                         <SelectValue placeholder={isLoadingCategories ? t("loading") : t("allCategories")} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value={ALL}>{t("allCategories")}</SelectItem>
-                        {options.map((option) => (
-                            <SelectItem key={option.id} value={String(option.id)}>
-                                {option.label}
+                        {categoryItems.map((item) => (
+                            <SelectItem key={item.value} value={item.value}>
+                                {item.label}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -102,6 +112,7 @@ export function ProductFilters({ params, onChange }: ProductFiltersProps) {
             <div className="space-y-2 md:w-44">
                 <Label htmlFor="product-status">{t("status")}</Label>
                 <Select
+                    items={statusItems}
                     value={params.status ?? ALL}
                     onValueChange={(value) => onChange({ status: value === ALL ? null : (value as ProductStatus) })}
                 >
@@ -111,10 +122,11 @@ export function ProductFilters({ params, onChange }: ProductFiltersProps) {
                     <SelectContent>
                         {/* "All" is not truly all: the API hides archived products unless
                             they are asked for by name, so they only appear under Archived. */}
-                        <SelectItem value={ALL}>{t("activeAndInactive")}</SelectItem>
-                        <SelectItem value="active">{t("active")}</SelectItem>
-                        <SelectItem value="inactive">{t("inactive")}</SelectItem>
-                        <SelectItem value="deleted">{t("archived")}</SelectItem>
+                        {statusItems.map((item) => (
+                            <SelectItem key={item.value} value={item.value}>
+                                {item.label}
+                            </SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
             </div>

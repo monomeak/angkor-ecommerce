@@ -44,6 +44,7 @@ export function ReportToolbar({ params, report, onChange }: ReportToolbarProps) 
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="report-type">{t("reportType")}</Label>
                     <Select
+                        items={REPORT_TYPES.map((type) => ({ value: type, label: t(`type.${type}`) }))}
                         value={params.type}
                         onValueChange={(value) => onChange({ type: value as ReportParams["type"] })}
                     >
@@ -63,6 +64,7 @@ export function ReportToolbar({ params, report, onChange }: ReportToolbarProps) 
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="report-period">{t("period")}</Label>
                     <Select
+                        items={REPORT_PERIODS.map((period) => ({ value: period, label: t(`periodOption.${period}`) }))}
                         value={params.period}
                         onValueChange={(value) => onChange({ period: value as ReportParams["period"] })}
                     >

@@ -76,6 +76,10 @@ export function InvoiceFilters({ params, onChange }: InvoiceFiltersProps) {
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="invoice-status">{t("status")}</Label>
                     <Select
+                        items={[
+                            { value: ALL, label: t("allStatuses") },
+                            ...FILTERABLE_STATUSES.map((status) => ({ value: status, label: t(`status_${status}`) }))
+                        ]}
                         value={params.status ?? ALL}
                         onValueChange={(value) => onChange({ status: value === ALL ? null : (value as InvoiceStatus) })}
                     >

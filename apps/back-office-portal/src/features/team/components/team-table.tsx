@@ -117,6 +117,7 @@ export function TeamTable({
                 <TableCell>
                   {canEdit && assignable.includes(mem.role) ? (
                     <Select
+                      items={assignable.map((r) => ({ value: r, label: getRoleStyle(r).label }))}
                       value={mem.role}
                       onValueChange={(value) =>
                         updateRole({ id: mem.id, role: value as AppRole })

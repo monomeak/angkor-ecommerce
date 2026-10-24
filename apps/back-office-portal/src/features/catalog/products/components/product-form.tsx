@@ -153,6 +153,10 @@ export function ProductForm({
                                         name="categoryId"
                                         render={({ field }) => (
                                             <Select
+                                                items={categoryOptions.map((option) => ({
+                                                    value: String(option.id),
+                                                    label: option.label
+                                                }))}
                                                 value={field.value ? String(field.value) : ""}
                                                 onValueChange={(value) =>
                                                     field.onChange(value ? Number(value) : undefined)

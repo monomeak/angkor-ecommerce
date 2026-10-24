@@ -96,6 +96,7 @@ export function AddMemberDialog({ actorRole }: AddMemberDialogProps) {
           <div className="space-y-1.5">
             <label className="text-sm font-meduim">Role</label>
             <Select
+              items={roles.map((r) => ({ value: r, label: getRoleStyle(r).label }))}
               value={role}
               onValueChange={(value) => setRole(value as AppRole)}
             >
