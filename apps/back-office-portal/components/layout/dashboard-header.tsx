@@ -21,11 +21,13 @@ import { cn } from "@/lib/utils";
 type dashboardHeaderProps = {
   readonly profilePath?: string;
   readonly userName?: string;
+  readonly userInitials?: string;
 };
 
 export default function DashboardHeader({
   profilePath,
   userName,
+  userInitials,
 }: dashboardHeaderProps) {
   const locale = useLocale();
   const pathname = usePathname();
@@ -111,7 +113,11 @@ export default function DashboardHeader({
           href={"/settings/profile"}
           className="ml-auto flex items-center gap-2"
         >
-          <AvatarDemo profilePath={profilePath} />
+          <AvatarDemo
+            profilePath={profilePath}
+            userName={userName}
+            userInitials={userInitials}
+          />
           {userName}
         </Link>
       </div>
@@ -119,11 +125,15 @@ export default function DashboardHeader({
   );
 }
 
-export function AvatarDemo({ profilePath }: dashboardHeaderProps) {
+export function AvatarDemo({
+  profilePath,
+  userName,
+  userInitials,
+}: dashboardHeaderProps) {
   return (
     <Avatar className="cursor-pointer">
-      <AvatarImage src={profilePath} alt="@shadcn" />
-      <AvatarFallback>UR</AvatarFallback>
+      <AvatarImage src={profilePath} alt={userName ?? ""} />
+      <AvatarFallback>{userInitials?.toUpperCase()}</AvatarFallback>
     </Avatar>
   );
 }

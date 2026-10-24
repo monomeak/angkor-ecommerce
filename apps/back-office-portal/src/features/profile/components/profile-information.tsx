@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldCheck, User } from "lucide-react";
+import { Check, ShieldCheck, User, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { FieldErrors, UseFormRegisterReturn, UseFormRegister } from "react-hook-form";
 
@@ -8,9 +8,11 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { getRoleStyle } from "@/src/features/auth/lib/role-style";
@@ -20,16 +22,20 @@ import type { ProfileFormValues } from "../schemas/profile.schema";
 
 type ProfileInformationProps = {
   user: CurrentUser;
-  isEditing: boolean;
   register: UseFormRegister<ProfileFormValues>;
   errors: FieldErrors<ProfileFormValues>;
+  isDirty: boolean;
+  isSaving: boolean;
+  onDiscard: () => void;
 };
 
 export function ProfileInformation({
   user,
-  isEditing,
   register,
   errors,
+  isDirty,
+  isSaving,
+  onDiscard,
 }: ProfileInformationProps) {
   const t = useTranslations("Profile");
 
@@ -45,19 +51,16 @@ export function ProfileInformation({
         </CardHeader>
         <CardContent>
           <FieldGroup className="grid gap-4 md:grid-cols-2">
-            <ReadOnlyField id="profile-id" label={t("userId")} value={user.id} />
             <ReadOnlyField id="profile-username" label={t("username")} value={user.username} />
             <EditableField
               id="profile-first-name"
               label={t("firstName")}
-              readOnly={!isEditing}
               registration={register("firstName")}
               error={errors.firstName}
             />
             <EditableField
               id="profile-last-name"
               label={t("lastName")}
-              readOnly={!isEditing}
               registration={register("lastName")}
               error={errors.lastName}
             />
@@ -65,7 +68,6 @@ export function ProfileInformation({
               id="profile-email"
               label={t("email")}
               type="email"
-              readOnly={!isEditing}
               registration={register("email")}
               error={errors.email}
             />
@@ -73,12 +75,21 @@ export function ProfileInformation({
               id="profile-phone"
               label={t("phone")}
               type="tel"
-              readOnly={!isEditing}
               registration={register("phone")}
               error={errors.phone}
             />
           </FieldGroup>
         </CardContent>
+        <CardFooter className="justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onDiscard} disabled={!isDirty || isSaving}>
+            <X className="size-4" />
+            {t("cancel")}
+          </Button>
+          <Button type="submit" disabled={!isDirty || isSaving}>
+            <Check className="size-4" />
+            {isSaving ? t("saving") : t("save")}
+          </Button>
+        </CardFooter>
       </Card>
 
       <Card>
@@ -102,19 +113,16 @@ export function ProfileInformation({
   );
 }
 
-// readOnly rather than disabled: RHF drops disabled inputs' values on submit.
 function EditableField({
   id,
   label,
   type = "text",
-  readOnly,
   registration,
   error,
 }: {
   id: string;
   label: string;
   type?: string;
-  readOnly: boolean;
   registration: UseFormRegisterReturn;
   error?: { message?: string };
 }) {
@@ -124,9 +132,7 @@ function EditableField({
       <Input
         id={id}
         type={type}
-        readOnly={readOnly}
         aria-invalid={Boolean(error)}
-        className="read-only:cursor-default read-only:bg-muted/30"
         {...registration}
       />
       <FieldError errors={[error]} />
@@ -134,7 +140,7 @@ function EditableField({
   );
 }
 
-function ReadOnlyField({ id, label, value }: { id: string; label: string; value: string | number }) {
+function ReadOnlyField({ id, label, value }: { id: string; label: string; value: string }) {
   return (
     <Field>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>

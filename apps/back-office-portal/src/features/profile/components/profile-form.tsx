@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -43,27 +42,19 @@ function ProfileEditor({ user }: { user: CurrentUser }) {
     const updateProfile = useUpdateProfile();
     const uploadImage = useUploadProfileImage();
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-
     const {
         register,
         handleSubmit,
         reset,
         setError,
-        formState: { errors, dirtyFields, isSubmitting }
+        formState: { errors, dirtyFields, isDirty, isSubmitting }
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: toProfileFormValues(user)
     });
 
-    const clearImage = () => {
-        setImageFile(null);
-        setImagePreview(null);
-    };
-
-    const handleImageChange = (file: File | undefined) => {
+    // The photo has its own endpoint, so it saves on pick rather than waiting for the form.
+    const handleImageChange = async (file: File | undefined) => {
         if (!file) return;
 
         // core-api checks this too (by magic bytes); catching it here saves an upload.
@@ -72,39 +63,22 @@ function ProfileEditor({ user }: { user: CurrentUser }) {
             return;
         }
 
-        // A data URL rather than an object URL: nothing to revoke, so no cleanup effect.
-        const reader = new FileReader();
-        reader.addEventListener("load", () => {
-            if (typeof reader.result === "string") {
-                setImageFile(file);
-                setImagePreview(reader.result);
-            }
-        });
-        reader.readAsDataURL(file);
-    };
-
-    const cancelEditing = () => {
-        reset();
-        clearImage();
-        setIsEditing(false);
+        try {
+            await uploadImage.mutateAsync(file);
+            toast.success(t("photoUpdated"));
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : t("photoUploadFailed"));
+        }
     };
 
     const submit = handleSubmit(async (values) => {
         const payload = toUpdateProfilePayload(values, dirtyFields);
 
+        if (Object.keys(payload).length === 0) return;
+
         try {
-            if (Object.keys(payload).length > 0) {
-                const saved = await updateProfile.mutateAsync(payload);
-                // Reset before the upload so a failed photo doesn't re-send saved fields.
-                reset(toProfileFormValues(saved));
-            }
-
-            if (imageFile) {
-                await uploadImage.mutateAsync(imageFile);
-                clearImage();
-            }
-
-            setIsEditing(false);
+            const saved = await updateProfile.mutateAsync(payload);
+            reset(toProfileFormValues(saved));
             toast.success(t("saved"));
         } catch (error) {
             const message = applyServerErrors(error, setError);
@@ -116,14 +90,17 @@ function ProfileEditor({ user }: { user: CurrentUser }) {
         <form onSubmit={submit} noValidate className="w-full space-y-6">
             <ProfileHeader
                 user={user}
-                imagePreview={imagePreview}
-                isEditing={isEditing}
-                isSaving={isSubmitting}
-                onStartEditing={() => setIsEditing(true)}
-                onCancel={cancelEditing}
+                isUploadingImage={uploadImage.isPending}
                 onImageChange={handleImageChange}
             />
-            <ProfileInformation user={user} isEditing={isEditing} register={register} errors={errors} />
+            <ProfileInformation
+                user={user}
+                register={register}
+                errors={errors}
+                isDirty={isDirty}
+                isSaving={isSubmitting}
+                onDiscard={() => reset()}
+            />
         </form>
     );
 }
