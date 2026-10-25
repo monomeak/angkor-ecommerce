@@ -34,4 +34,5 @@ public final class CollectionKeys {
 
     public static final String WISHLIST = "wishlist";
     public static final String TESTIMONIALS = "testimonials";
+    public static final String INVENTORY = "inventory";
 }

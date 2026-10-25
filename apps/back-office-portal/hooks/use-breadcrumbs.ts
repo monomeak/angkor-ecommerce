@@ -72,6 +72,8 @@ export function useBreadcrumbs(): Crumb[] {
             label = tCrumb("new");
         } else if (segment === "edit") {
             label = tCrumb("edit");
+        } else if (segment === "details") {
+            label = tCrumb("details");
         } else if (/^\d+$/.test(segment)) {
             /*
              * A record id. The detail query is already in the cache by the time the page

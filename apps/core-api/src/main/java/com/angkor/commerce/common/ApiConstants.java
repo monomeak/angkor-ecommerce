@@ -22,6 +22,7 @@ public final class ApiConstants {
     public static final String DASHBOARD_BASE = API_BASE + "/dashboard";
     public static final String REPORTS_BASE = API_BASE + "/reports";
     public static final String TESTIMONIALS_BASE = API_BASE + "/testimonials";
+    public static final String INVENTORY_BASE = API_BASE + "/inventory";
 
     // Store front api group
     public static final String STOREFRONT_AUTH_BASE = STOREFRONT_BASE + "/auth";

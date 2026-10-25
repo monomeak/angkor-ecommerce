@@ -117,7 +117,8 @@ public class SecurityConfig {
                         "/api/v1/payments/**",
                         "/api/v1/payment-intents/**",
                         "/api/v1/reports/**",
-                        "/api/v1/testimonials/**"
+                        "/api/v1/testimonials/**",
+                        "/api/v1/inventory/**"
                     )
                     .hasAnyRole("STAFF", "SHOP_ADMIN", "SUPER_ADMIN")
 
