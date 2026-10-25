@@ -63,8 +63,16 @@ export async function SiteFooter() {
 
             <Separator />
 
-            <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6">
-                © {new Date().getFullYear()} Angkor Commerce. All rights reserved.
+            <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <span>© {new Date().getFullYear()} Angkor Commerce. All rights reserved.</span>
+                <nav aria-label="Legal" className="flex gap-4">
+                    <Link href="/privacy" className="hover:text-foreground">
+                        Privacy Policy
+                    </Link>
+                    <Link href="/terms" className="hover:text-foreground">
+                        Terms of Use
+                    </Link>
+                </nav>
             </div>
         </footer>
     );
