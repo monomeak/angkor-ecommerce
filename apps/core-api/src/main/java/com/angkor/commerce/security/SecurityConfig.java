@@ -86,6 +86,9 @@ public class SecurityConfig {
                         ApiConstants.PRODUCTS_BASE + "/**"
                     )
                     .permitAll()
+                    // Approved testimonials on the home page. Must precede the CUSTOMER rule below.
+                    .requestMatchers(HttpMethod.GET, ApiConstants.STOREFRONT_TESTIMONIALS)
+                    .permitAll()
                     // ── AUTHENTICATED, either principal type ──
                     .requestMatchers(
                         ApiConstants.AUTH_BASE + "/me",
@@ -113,7 +116,8 @@ public class SecurityConfig {
                         "/api/v1/dashboard/**",
                         "/api/v1/payments/**",
                         "/api/v1/payment-intents/**",
-                        "/api/v1/reports/**"
+                        "/api/v1/reports/**",
+                        "/api/v1/testimonials/**"
                     )
                     .hasAnyRole("STAFF", "SHOP_ADMIN", "SUPER_ADMIN")
 

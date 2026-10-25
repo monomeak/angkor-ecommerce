@@ -48,6 +48,11 @@ export async function SiteFooter() {
                             </Link>
                         </li>
                         <li>
+                            <Link href="/feedback" className="hover:text-foreground">
+                                Share feedback
+                            </Link>
+                        </li>
+                        <li>
                             <Link href="#" className="hover:text-foreground">
                                 Home
                             </Link>

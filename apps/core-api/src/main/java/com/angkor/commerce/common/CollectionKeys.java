@@ -33,4 +33,5 @@ public final class CollectionKeys {
     public static final String REPORTS = "reports";
 
     public static final String WISHLIST = "wishlist";
+    public static final String TESTIMONIALS = "testimonials";
 }

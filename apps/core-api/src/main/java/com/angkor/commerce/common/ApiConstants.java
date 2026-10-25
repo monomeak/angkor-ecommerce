@@ -21,12 +21,15 @@ public final class ApiConstants {
     public static final String PAYMENT_BASE = API_BASE + "/payment";
     public static final String DASHBOARD_BASE = API_BASE + "/dashboard";
     public static final String REPORTS_BASE = API_BASE + "/reports";
+    public static final String TESTIMONIALS_BASE = API_BASE + "/testimonials";
 
     // Store front api group
     public static final String STOREFRONT_AUTH_BASE = STOREFRONT_BASE + "/auth";
     public static final String STOREFRONT_ADDRESSES = STOREFRONT_BASE + "/addresses";
     public static final String STOREFRONT_ORDERS = STOREFRONT_BASE + "/orders";
     public static final String STOREFRONT_WISHLIST = STOREFRONT_BASE + "/my-wishlist";
+    public static final String STOREFRONT_TESTIMONIALS = STOREFRONT_BASE + "/testimonials";
+    public static final String STOREFRONT_MY_TESTIMONIAL = STOREFRONT_BASE + "/my-testimonial";
 
     //  Shared api
     public static final String CATEGORIES_BASE = API_BASE + "/categories";
