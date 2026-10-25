@@ -15,7 +15,8 @@ import {
     LayoutGrid,
     Package,
     FolderTree,
-    Boxes
+    Boxes,
+    MessageSquareQuote
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -43,6 +44,11 @@ export const sidebarNavigation: SideBarMenu[] = [
         titleKey: "customers",
         href: "/customers",
         icon: Users
+    },
+    {
+        titleKey: "testimonials",
+        href: "/testimonials",
+        icon: MessageSquareQuote
     },
     {
         titleKey: "reports",

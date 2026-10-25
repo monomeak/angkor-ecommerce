@@ -26,6 +26,7 @@ const NAVIGATION_KEYS: Record<string, string> = {
     overview: "overview",
     invoices: "invoices",
     customers: "customers",
+    testimonials: "testimonials",
     reports: "reports",
     analytics: "analytics",
     team: "team",
